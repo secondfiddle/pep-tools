@@ -10,6 +10,7 @@ import org.eclipse.swt.dnd.TransferData;
 import uk.org.secondfiddle.pep.features.support.FeatureSupport;
 import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
 
+@SuppressWarnings("restriction")
 public class FeatureTreeDropSupport extends ViewerDropAdapter {
 
 	public FeatureTreeDropSupport(Viewer viewer) {

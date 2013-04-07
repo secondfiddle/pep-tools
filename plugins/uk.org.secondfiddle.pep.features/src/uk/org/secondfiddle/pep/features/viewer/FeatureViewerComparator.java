@@ -1,12 +1,12 @@
 package uk.org.secondfiddle.pep.features.viewer;
 
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
 import uk.org.secondfiddle.pep.features.support.FeatureSupport;
 
+@SuppressWarnings("restriction")
 public class FeatureViewerComparator extends ViewerComparator {
 
 	@Override

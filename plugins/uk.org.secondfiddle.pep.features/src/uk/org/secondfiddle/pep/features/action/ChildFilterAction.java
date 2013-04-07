@@ -4,8 +4,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import uk.org.secondfiddle.pep.features.FeatureExplorerConstants;
 import uk.org.secondfiddle.pep.features.ConfigurableViewer;
+import uk.org.secondfiddle.pep.features.support.FeatureIndex;
 import uk.org.secondfiddle.pep.features.viewer.ChildFeatureViewerFilter;
-import uk.org.secondfiddle.pep.features.viewer.FeatureIndex;
 
 public class ChildFilterAction extends ViewerFilterAction {
 

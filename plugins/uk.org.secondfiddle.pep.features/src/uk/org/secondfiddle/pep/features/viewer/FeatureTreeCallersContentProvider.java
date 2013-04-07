@@ -3,6 +3,9 @@ package uk.org.secondfiddle.pep.features.viewer;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
+import uk.org.secondfiddle.pep.features.support.FeatureIndex;
+
+@SuppressWarnings("restriction")
 public class FeatureTreeCallersContentProvider extends AbstractFeatureTreeContentProvider {
 
 	private final FeatureIndex featureIndex;

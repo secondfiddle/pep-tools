@@ -7,6 +7,7 @@ import uk.org.secondfiddle.pep.features.ConfigurableViewer;
 import uk.org.secondfiddle.pep.features.support.FeatureSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeCalleesContentProvider;
 
+@SuppressWarnings("restriction")
 public class ShowCalleesContentProviderAction extends ContentProviderAction {
 
 	public ShowCalleesContentProviderAction(ConfigurableViewer configurableViewer) {

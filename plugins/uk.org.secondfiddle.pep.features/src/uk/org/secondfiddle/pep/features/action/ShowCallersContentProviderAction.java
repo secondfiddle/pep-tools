@@ -4,10 +4,11 @@ import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.pde.internal.ui.PDEPluginImages;
 
 import uk.org.secondfiddle.pep.features.ConfigurableViewer;
+import uk.org.secondfiddle.pep.features.support.FeatureIndex;
 import uk.org.secondfiddle.pep.features.support.FeatureSupport;
-import uk.org.secondfiddle.pep.features.viewer.FeatureIndex;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeCallersContentProvider;
 
+@SuppressWarnings("restriction")
 public class ShowCallersContentProviderAction extends ContentProviderAction {
 
 	private final FeatureIndex featureIndex;

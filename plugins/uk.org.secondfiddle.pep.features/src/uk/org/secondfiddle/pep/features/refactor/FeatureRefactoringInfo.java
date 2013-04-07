@@ -4,6 +4,7 @@ import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import org.eclipse.pde.internal.ui.refactoring.RefactoringInfo;
 
+@SuppressWarnings("restriction")
 public class FeatureRefactoringInfo extends RefactoringInfo {
 
 	private final IFeatureModel featureModel;

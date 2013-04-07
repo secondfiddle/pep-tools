@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.features.viewer;
+package uk.org.secondfiddle.pep.features.support;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +12,7 @@ import org.eclipse.pde.internal.core.IFeatureModelListener;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
+@SuppressWarnings("restriction")
 public class FeatureIndex implements IFeatureModelListener {
 
 	private final Map<String, Collection<IFeatureModel>> includingFeatures = new HashMap<String, Collection<IFeatureModel>>();

@@ -5,7 +5,7 @@ import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
 import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
 
-
+@SuppressWarnings("restriction")
 public class RenameFeatureWizard extends RefactoringWizard {
 
 	private static final String TITLE = "Rename Feature";

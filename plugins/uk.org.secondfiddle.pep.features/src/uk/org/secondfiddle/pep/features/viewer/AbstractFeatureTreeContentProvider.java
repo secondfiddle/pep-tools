@@ -6,6 +6,7 @@ import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.IFeatureModelDelta;
 import org.eclipse.pde.internal.core.IFeatureModelListener;
 
+@SuppressWarnings("restriction")
 public abstract class AbstractFeatureTreeContentProvider implements ITreeContentProvider, IFeatureModelListener {
 
 	protected final FeatureModelManager featureModelManager;

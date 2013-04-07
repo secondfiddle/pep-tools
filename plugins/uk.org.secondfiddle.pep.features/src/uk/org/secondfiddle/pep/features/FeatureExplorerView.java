@@ -31,13 +31,14 @@ import uk.org.secondfiddle.pep.features.action.ContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.ShowCalleesContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.ShowCallersContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.ViewerFilterAction;
+import uk.org.secondfiddle.pep.features.support.FeatureIndex;
 import uk.org.secondfiddle.pep.features.support.FeatureSupport;
 import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
-import uk.org.secondfiddle.pep.features.viewer.FeatureIndex;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDragSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDropSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureViewerComparator;
 
+@SuppressWarnings("restriction")
 public class FeatureExplorerView extends ViewPart implements ConfigurableViewer {
 
 	private final Collection<ViewerFilter> viewerFilters = new ArrayList<ViewerFilter>();

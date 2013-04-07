@@ -12,6 +12,7 @@ import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
+@SuppressWarnings("restriction")
 public class FeatureSupport {
 
 	private FeatureSupport() {

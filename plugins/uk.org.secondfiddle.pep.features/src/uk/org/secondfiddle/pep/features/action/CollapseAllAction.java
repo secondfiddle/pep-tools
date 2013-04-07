@@ -3,8 +3,8 @@ package uk.org.secondfiddle.pep.features.action;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.pde.internal.ui.PDEPluginImages;
-import org.eclipse.pde.internal.ui.PDEUIMessages;
 
+@SuppressWarnings("restriction")
 public class CollapseAllAction extends Action {
 
 	private final TreeViewer viewer;

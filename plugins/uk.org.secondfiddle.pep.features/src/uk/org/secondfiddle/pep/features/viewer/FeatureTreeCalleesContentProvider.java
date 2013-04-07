@@ -4,6 +4,7 @@ import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
+@SuppressWarnings("restriction")
 public class FeatureTreeCalleesContentProvider extends AbstractFeatureTreeContentProvider {
 
 	public FeatureTreeCalleesContentProvider(FeatureModelManager featureModelManager) {

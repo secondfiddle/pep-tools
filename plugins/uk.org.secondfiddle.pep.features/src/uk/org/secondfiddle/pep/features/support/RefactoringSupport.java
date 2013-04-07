@@ -1,5 +1,14 @@
 package uk.org.secondfiddle.pep.features.support;
 
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.LABEL_DELETE_FEATURE;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.LABEL_DELETE_FEATURES;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.LABEL_REMOVE_IMPORT;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.LABEL_REMOVE_IMPORTS;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.MESSAGE_DELETE_FEATURES_OR_REFS;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.MESSAGE_DELETE_FEATURE_OR_REF;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURE;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURES;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,7 +35,6 @@ import org.eclipse.ltk.ui.refactoring.resource.DeleteResourcesWizard;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.IIdentifiable;
 import org.eclipse.pde.internal.core.FeatureModelManager;
-import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.ifeature.IFeature;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
@@ -35,23 +43,8 @@ import org.eclipse.swt.widgets.Shell;
 
 import uk.org.secondfiddle.pep.features.refactor.RenameFeatureWizard;
 
+@SuppressWarnings("restriction")
 public class RefactoringSupport {
-
-	private static final String TITLE_DELETE_FEATURE = "Delete Feature";
-
-	private static final String TITLE_DELETE_FEATURES = "Delete Features";
-
-	private static final String MESSAGE_DELETE_FEATURE_OR_REF = "Do you want to delete the feature '%s' or only remove it as an import for feature '%s'?";
-
-	private static final String MESSAGE_DELETE_FEATURES_OR_REFS = "Do you want to delete the selected features or only remove them as imports?";
-
-	private static final String LABEL_REMOVE_IMPORT = "Remove Import";
-
-	private static final String LABEL_DELETE_FEATURE = "Delete Feature";
-
-	private static final String LABEL_REMOVE_IMPORTS = "Remove Imports";
-
-	private static final String LABEL_DELETE_FEATURES = "Delete Features";
 
 	public static void addIncludedFeature(final IFeatureModel parentModel, final IFeatureModel featureModelToInclude) {
 		SafeRunnable.run(new SafeRunnable() {

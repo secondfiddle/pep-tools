@@ -5,6 +5,9 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
+import uk.org.secondfiddle.pep.features.support.FeatureIndex;
+
+@SuppressWarnings("restriction")
 public class ChildFeatureViewerFilter extends ViewerFilter {
 
 	private final FeatureIndex featureIndex;
