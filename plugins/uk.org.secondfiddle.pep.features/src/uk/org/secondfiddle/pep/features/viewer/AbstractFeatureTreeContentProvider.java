@@ -5,16 +5,14 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.IFeatureModelDelta;
 import org.eclipse.pde.internal.core.IFeatureModelListener;
-import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
-import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
-public class FeatureTreeContentProvider implements ITreeContentProvider, IFeatureModelListener {
+public abstract class AbstractFeatureTreeContentProvider implements ITreeContentProvider, IFeatureModelListener {
 
-	private final FeatureModelManager featureModelManager;
+	protected final FeatureModelManager featureModelManager;
 
 	private Viewer viewer;
 
-	public FeatureTreeContentProvider(FeatureModelManager featureModelManager) {
+	public AbstractFeatureTreeContentProvider(FeatureModelManager featureModelManager) {
 		this.featureModelManager = featureModelManager;
 		this.featureModelManager.addFeatureModelListener(this);
 	}
@@ -29,20 +27,6 @@ public class FeatureTreeContentProvider implements ITreeContentProvider, IFeatur
 		if (inputElement instanceof FeatureModelManager) {
 			FeatureModelManager featureModelManager = (FeatureModelManager) inputElement;
 			return featureModelManager.getWorkspaceModels();
-		}
-
-		return new Object[0];
-	}
-
-	@Override
-	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof IFeatureModel) {
-			IFeatureModel featureModel = (IFeatureModel) parentElement;
-			return featureModel.getFeature().getIncludedFeatures();
-		} else if (parentElement instanceof IFeatureChild) {
-			IFeatureChild featureChild = (IFeatureChild) parentElement;
-			IFeatureModel featureModel = featureModelManager.findFeatureModel(featureChild.getId());
-			return getChildren(featureModel);
 		}
 
 		return new Object[0];
@@ -65,6 +49,10 @@ public class FeatureTreeContentProvider implements ITreeContentProvider, IFeatur
 
 	@Override
 	public void modelsChanged(IFeatureModelDelta delta) {
+		if (viewer.getControl().isDisposed()) {
+			return;
+		}
+
 		viewer.getControl().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
