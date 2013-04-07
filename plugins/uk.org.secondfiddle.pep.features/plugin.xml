@@ -4,7 +4,10 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            allowMultiple="true"
+            category="org.eclipse.pde.ui"
             class="uk.org.secondfiddle.pep.features.FeatureExplorerView"
+            icon="icons/feature_obj.gif"
             id="uk.org.secondfiddle.pep.features.FeatureExplorerView"
             name="Feature Explorer"
             restorable="true">

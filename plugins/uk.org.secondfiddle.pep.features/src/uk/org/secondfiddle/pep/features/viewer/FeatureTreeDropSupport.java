@@ -1,20 +1,18 @@
-package uk.org.secondfiddle.pep.features;
+package uk.org.secondfiddle.pep.features.viewer;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
-import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import org.eclipse.swt.dnd.TransferData;
 
-import uk.org.secondfiddle.pep.features.refactor.RefactoringSupport;
+import uk.org.secondfiddle.pep.features.support.FeatureSupport;
+import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
 
 public class FeatureTreeDropSupport extends ViewerDropAdapter {
 
-	protected FeatureTreeDropSupport(Viewer viewer) {
+	public FeatureTreeDropSupport(Viewer viewer) {
 		super(viewer);
 	}
 
@@ -34,27 +32,11 @@ public class FeatureTreeDropSupport extends ViewerDropAdapter {
 	}
 
 	private IFeatureModel getValidTarget() {
-		Object currentTarget = getCurrentTarget();
-		if (currentTarget instanceof IFeatureModel && currentTarget instanceof IEditableModel) {
-			IEditableModel editable = (IEditableModel) currentTarget;
-			if (editable.isEditable()) {
-				return (IFeatureModel) currentTarget;
-			}
-		}
-		return null;
+		return FeatureSupport.toEditableFeatureModel(getCurrentTarget());
 	}
 
 	private Collection<IFeatureModel> getValidSources(Object data) {
-		IStructuredSelection selection = (IStructuredSelection) data;
-		Collection<IFeatureModel> sources = new ArrayList<IFeatureModel>();
-
-		for (Object selectedItem : selection.toList()) {
-			if (selectedItem instanceof IFeatureModel) {
-				sources.add((IFeatureModel) selectedItem);
-			}
-		}
-
-		return sources;
+		return FeatureSupport.toFeatureModels(data);
 	}
 
 	@Override

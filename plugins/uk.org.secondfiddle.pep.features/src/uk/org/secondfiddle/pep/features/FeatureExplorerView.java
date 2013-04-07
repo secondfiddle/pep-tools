@@ -1,11 +1,13 @@
 package uk.org.secondfiddle.pep.features;
 
+import java.util.Collection;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.pde.core.IIdentifiable;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
@@ -19,7 +21,12 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.org.secondfiddle.pep.features.refactor.RefactoringSupport;
+import uk.org.secondfiddle.pep.features.support.FeatureSupport;
+import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
+import uk.org.secondfiddle.pep.features.viewer.FeatureTreeContentProvider;
+import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDragSupport;
+import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDropSupport;
+import uk.org.secondfiddle.pep.features.viewer.FeatureViewerComparator;
 
 public class FeatureExplorerView extends ViewPart {
 
@@ -68,34 +75,43 @@ public class FeatureExplorerView extends ViewPart {
 				handleRename();
 			}
 		});
+		actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(), new Action() {
+			@Override
+			public void run() {
+				handleDelete();
+			}
+		});
 	}
 
 	private void handleDoubleClick() {
-		IFeatureModel selectedFeature = getSelectedFeature();
-		if (selectedFeature != null) {
-			FeatureEditor.openFeatureEditor(selectedFeature);
+		IFeatureModel selectedFeatureModel = getSelectedFeatureModel();
+		if (selectedFeatureModel != null) {
+			FeatureEditor.openFeatureEditor(selectedFeatureModel);
 		}
 	}
 
 	private void handleRename() {
-		IFeatureModel selectedFeature = getSelectedFeature();
-		if (selectedFeature != null) {
-			RefactoringSupport.renameFeature(selectedFeature, getSite().getShell());
+		IFeatureModel selectedFeatureModel = getSelectedEditableFeatureModel();
+		if (selectedFeatureModel != null) {
+			RefactoringSupport.renameFeature(selectedFeatureModel, getSite().getShell());
 		}
 	}
 
-	private IFeatureModel getSelectedFeature() {
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		if (selection.size() != 1) {
-			return null;
-		}
+	protected void handleDelete() {
+		Collection<IIdentifiable> features = getSelectedFeaturesOrChildren();
+		RefactoringSupport.deleteFeaturesOrReferences(features, getSite().getShell());
+	}
 
-		Object firstElement = selection.getFirstElement();
-		if (firstElement instanceof IFeatureModel) {
-			return (IFeatureModel) firstElement;
-		}
+	private IFeatureModel getSelectedFeatureModel() {
+		return FeatureSupport.toSingleFeatureModel(viewer.getSelection());
+	}
 
-		return null;
+	private IFeatureModel getSelectedEditableFeatureModel() {
+		return FeatureSupport.toEditableFeatureModel(getSelectedFeatureModel());
+	}
+
+	private Collection<IIdentifiable> getSelectedFeaturesOrChildren() {
+		return FeatureSupport.toFeaturesOrChildren(viewer.getSelection());
 	}
 
 }

@@ -3,6 +3,8 @@ package uk.org.secondfiddle.pep.features.refactor;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
+import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
+
 
 public class RenameFeatureWizard extends RefactoringWizard {
 

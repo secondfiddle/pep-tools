@@ -1,16 +1,21 @@
-package uk.org.secondfiddle.pep.features;
+package uk.org.secondfiddle.pep.features.viewer;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
+import uk.org.secondfiddle.pep.features.support.FeatureSupport;
+
 public class FeatureViewerComparator extends ViewerComparator {
 
 	@Override
 	public int category(Object element) {
 		if (element instanceof IFeatureChild) {
-			return 3;
+			element = FeatureSupport.toFeatureModel(element);
+			if (element == null) {
+				return 3;
+			}
 		}
 
 		IFeatureModel featureModel = (IFeatureModel) element;

@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.features;
+package uk.org.secondfiddle.pep.features.viewer;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -38,22 +38,11 @@ public class FeatureTreeContentProvider implements ITreeContentProvider, IFeatur
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IFeatureModel) {
 			IFeatureModel featureModel = (IFeatureModel) parentElement;
-			IFeatureChild[] includedFeatures = featureModel.getFeature().getIncludedFeatures();
-
-			Object[] children = new Object[includedFeatures.length];
-			for (int i = 0; i < includedFeatures.length; i++) {
-				String featureId = includedFeatures[i].getId();
-				IFeatureModel includedFeatureModel = featureModelManager.findFeatureModel(featureId);
-
-				// handle non-existent features
-				if (includedFeatureModel == null) {
-					children[i] = includedFeatures[i];
-				} else {
-					children[i] = includedFeatureModel;
-				}
-			}
-
-			return children;
+			return featureModel.getFeature().getIncludedFeatures();
+		} else if (parentElement instanceof IFeatureChild) {
+			IFeatureChild featureChild = (IFeatureChild) parentElement;
+			IFeatureModel featureModel = featureModelManager.findFeatureModel(featureChild.getId());
+			return getChildren(featureModel);
 		}
 
 		return new Object[0];

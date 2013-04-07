@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.features;
+package uk.org.secondfiddle.pep.features.viewer;
 
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
