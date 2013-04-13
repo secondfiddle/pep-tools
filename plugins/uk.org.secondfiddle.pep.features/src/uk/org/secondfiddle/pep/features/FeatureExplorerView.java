@@ -13,10 +13,13 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.pde.core.IIdentifiable;
+import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
+import org.eclipse.pde.internal.core.ifeature.IFeaturePlugin;
 import org.eclipse.pde.internal.ui.PDELabelProvider;
 import org.eclipse.pde.internal.ui.editor.feature.FeatureEditor;
+import org.eclipse.pde.internal.ui.editor.plugin.ManifestEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
@@ -33,6 +36,7 @@ import uk.org.secondfiddle.pep.features.action.ShowCallersContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.ViewerFilterAction;
 import uk.org.secondfiddle.pep.features.support.FeatureIndex;
 import uk.org.secondfiddle.pep.features.support.FeatureSupport;
+import uk.org.secondfiddle.pep.features.support.PluginSupport;
 import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDragSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDropSupport;
@@ -175,6 +179,12 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		IFeatureModel selectedFeatureModel = getSelectedFeatureModel();
 		if (selectedFeatureModel != null) {
 			FeatureEditor.openFeatureEditor(selectedFeatureModel);
+			return;
+		}
+
+		IPluginModelBase selectedPluginModel = getSelectedPluginModel();
+		if (selectedPluginModel != null) {
+			ManifestEditor.openPluginEditor(selectedPluginModel);
 		}
 	}
 
@@ -187,7 +197,13 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	protected void handleDelete() {
 		Collection<IIdentifiable> features = getSelectedFeaturesOrChildren();
-		RefactoringSupport.deleteFeaturesOrReferences(features, getSite().getShell());
+		boolean featureDeletionCompleted = RefactoringSupport
+				.deleteFeaturesOrReferences(features, getSite().getShell());
+
+		if (featureDeletionCompleted) {
+			Collection<IFeaturePlugin> plugins = getSelectedPlugins();
+			RefactoringSupport.deletePluginReferences(plugins);
+		}
 	}
 
 	private IFeatureModel getSelectedFeatureModel() {
@@ -200,6 +216,14 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private Collection<IIdentifiable> getSelectedFeaturesOrChildren() {
 		return FeatureSupport.toFeaturesOrChildren(viewer.getSelection());
+	}
+
+	private IPluginModelBase getSelectedPluginModel() {
+		return PluginSupport.toSinglePluginModel(viewer.getSelection());
+	}
+
+	private Collection<IFeaturePlugin> getSelectedPlugins() {
+		return PluginSupport.toFeaturePlugins(viewer.getSelection());
 	}
 
 }

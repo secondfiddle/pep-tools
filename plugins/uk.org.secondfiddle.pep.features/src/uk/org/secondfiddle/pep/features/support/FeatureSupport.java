@@ -34,7 +34,7 @@ public class FeatureSupport {
 
 	public static IFeatureModel toEditableFeatureModel(Object modelObj) {
 		IFeatureModel featureModel = toFeatureModel(modelObj);
-		return (featureModel.isEditable() ? featureModel : null);
+		return (featureModel != null && featureModel.isEditable() ? featureModel : null);
 	}
 
 	public static Collection<IFeatureModel> toFeatureModels(Object selection) {

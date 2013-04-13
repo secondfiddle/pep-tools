@@ -15,7 +15,12 @@ public class FeatureTreeCalleesContentProvider extends AbstractFeatureTreeConten
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IFeatureModel) {
 			IFeatureModel featureModel = (IFeatureModel) parentElement;
-			return featureModel.getFeature().getIncludedFeatures();
+			Object[] features = featureModel.getFeature().getIncludedFeatures();
+			Object[] plugins = featureModel.getFeature().getPlugins();
+			Object[] all = new Object[features.length + plugins.length];
+			System.arraycopy(features, 0, all, 0, features.length);
+			System.arraycopy(plugins, 0, all, features.length, plugins.length);
+			return all;
 		} else if (parentElement instanceof IFeatureChild) {
 			IFeatureChild featureChild = (IFeatureChild) parentElement;
 			IFeatureModel featureModel = featureModelManager.findFeatureModel(featureChild.getId());
