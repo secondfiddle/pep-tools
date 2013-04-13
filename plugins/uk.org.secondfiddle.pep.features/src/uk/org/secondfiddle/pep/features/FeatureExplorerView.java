@@ -28,9 +28,10 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.org.secondfiddle.pep.features.action.ChildFilterAction;
 import uk.org.secondfiddle.pep.features.action.CollapseAllAction;
 import uk.org.secondfiddle.pep.features.action.ContentProviderAction;
+import uk.org.secondfiddle.pep.features.action.FilterFeatureChildAction;
+import uk.org.secondfiddle.pep.features.action.FilterFeaturePluginAction;
 import uk.org.secondfiddle.pep.features.action.ShowCalleesContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.ShowCallersContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.ViewerFilterAction;
@@ -155,10 +156,13 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		toolBarManager.add(callersAction);
 		toolBarManager.add(new Separator());
 
-		ViewerFilterAction childFilterAction = new ChildFilterAction(this, featureIndex);
-		childFilterAction.setChecked(true);
-		registerFilterAction(childFilterAction);
-		toolBarManager.add(childFilterAction);
+		ViewerFilterAction filterFeatureChildAction = new FilterFeatureChildAction(this, featureIndex);
+		registerFilterAction(filterFeatureChildAction);
+		toolBarManager.add(filterFeatureChildAction);
+
+		ViewerFilterAction filterFeaturePluginAction = new FilterFeaturePluginAction(this);
+		registerFilterAction(filterFeaturePluginAction);
+		toolBarManager.add(filterFeaturePluginAction);
 
 		actionBars.updateActionBars();
 	}

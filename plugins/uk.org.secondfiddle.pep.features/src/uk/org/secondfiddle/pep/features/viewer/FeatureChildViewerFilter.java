@@ -8,11 +8,11 @@ import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import uk.org.secondfiddle.pep.features.support.FeatureIndex;
 
 @SuppressWarnings("restriction")
-public class ChildFeatureViewerFilter extends ViewerFilter {
+public class FeatureChildViewerFilter extends ViewerFilter {
 
 	private final FeatureIndex featureIndex;
 
-	public ChildFeatureViewerFilter(FeatureIndex featureIndex) {
+	public FeatureChildViewerFilter(FeatureIndex featureIndex) {
 		this.featureIndex = featureIndex;
 	}
 
