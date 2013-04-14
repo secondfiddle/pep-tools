@@ -4,14 +4,16 @@ import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 
 import uk.org.secondfiddle.pep.features.support.FeatureIndex;
+import uk.org.secondfiddle.pep.products.model.ProductModelManager;
 
 @SuppressWarnings("restriction")
 public class FeatureTreeCallersContentProvider extends AbstractFeatureTreeContentProvider {
 
 	private final FeatureIndex featureIndex;
 
-	public FeatureTreeCallersContentProvider(FeatureModelManager featureModelManager, FeatureIndex featureIndex) {
-		super(featureModelManager);
+	public FeatureTreeCallersContentProvider(FeatureModelManager featureModelManager,
+			ProductModelManager productModelManager, FeatureIndex featureIndex) {
+		super(featureModelManager, productModelManager);
 		this.featureIndex = featureIndex;
 	}
 

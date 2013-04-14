@@ -49,6 +49,9 @@ import org.eclipse.pde.internal.core.ifeature.IFeature;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import org.eclipse.pde.internal.core.ifeature.IFeaturePlugin;
+import org.eclipse.pde.internal.core.iproduct.IProduct;
+import org.eclipse.pde.internal.core.iproduct.IProductFeature;
+import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.util.CoreUtility;
 import org.eclipse.pde.internal.core.util.IdUtil;
 import org.eclipse.swt.widgets.Shell;
@@ -61,6 +64,13 @@ public class RefactoringSupport {
 	private static final Comparator<IIdentifiable> IDENTIFIABLE_COMPARATOR = new Comparator<IIdentifiable>() {
 		@Override
 		public int compare(IIdentifiable i1, IIdentifiable i2) {
+			return i1.getId().compareTo(i2.getId());
+		}
+	};
+
+	private static final Comparator<IProductFeature> PRODUCT_FEATURE_COMPARATOR = new Comparator<IProductFeature>() {
+		@Override
+		public int compare(IProductFeature i1, IProductFeature i2) {
 			return i1.getId().compareTo(i2.getId());
 		}
 	};
@@ -125,6 +135,33 @@ public class RefactoringSupport {
 		return plugin;
 	}
 
+	public static void addProductFeatures(final IProductModel productModel,
+			final Collection<IFeatureModel> featureModelsToInclude) {
+		SafeRunnable.run(new SafeRunnable() {
+			@Override
+			public void run() throws Exception {
+				IProduct product = productModel.getProduct();
+
+				Collection<IProductFeature> includes = new TreeSet<IProductFeature>(PRODUCT_FEATURE_COMPARATOR);
+				includes.addAll(Arrays.asList(product.getFeatures()));
+
+				product.removeFeatures(product.getFeatures());
+				for (IFeatureModel featureModelToInclude : featureModelsToInclude) {
+					includes.add(createInclude(productModel, featureModelToInclude));
+				}
+
+				product.addFeatures(includes.toArray(new IProductFeature[includes.size()]));
+				((IEditableModel) productModel).save();
+			}
+		});
+	}
+
+	private static IProductFeature createInclude(IProductModel productModel, IFeatureModel featureModelToInclude) {
+		IProductFeature productFeature = productModel.getFactory().createFeature();
+		productFeature.setId(featureModelToInclude.getFeature().getId());
+		return productFeature;
+	}
+
 	public static void removeIncludedFeatures(final IFeatureModel parentModel,
 			final Collection<IFeatureModel> featureModelsToRemove) {
 		SafeRunnable.run(new SafeRunnable() {
@@ -171,6 +208,31 @@ public class RefactoringSupport {
 
 				feature.removePlugins(removals.toArray(new IFeaturePlugin[removals.size()]));
 				((IEditableModel) parentModel).save();
+			}
+		});
+	}
+
+	public static void removeProductFeatures(final IProductModel productModel,
+			final Collection<IProductFeature> featuresToRemove) {
+		SafeRunnable.run(new SafeRunnable() {
+			@Override
+			public void run() throws Exception {
+				IProduct product = productModel.getProduct();
+
+				Collection<String> featureIdsToRemove = new HashSet<String>();
+				for (IProductFeature featureToRemove : featuresToRemove) {
+					featureIdsToRemove.add(featureToRemove.getId());
+				}
+
+				Collection<IProductFeature> removals = new ArrayList<IProductFeature>();
+				for (IProductFeature feature : product.getFeatures()) {
+					if (featureIdsToRemove.contains(feature.getId())) {
+						removals.add(feature);
+					}
+				}
+
+				product.removeFeatures(removals.toArray(new IProductFeature[removals.size()]));
+				((IEditableModel) productModel).save();
 			}
 		});
 	}
@@ -278,6 +340,26 @@ public class RefactoringSupport {
 
 		for (Entry<IFeatureModel, Collection<IPluginModelBase>> entry : references.entrySet()) {
 			removeIncludedPlugins(entry.getKey(), entry.getValue());
+		}
+	}
+
+	public static void deleteProductFeatures(Collection<IProductFeature> productFeaturesToDelete) {
+		Map<IProductModel, Collection<IProductFeature>> references = new HashMap<IProductModel, Collection<IProductFeature>>();
+
+		for (IProductFeature productFeature : productFeaturesToDelete) {
+			IProductModel productModel = ProductSupport.toEditableProductModel(productFeature.getProduct());
+			if (productModel != null) {
+				Collection<IProductFeature> productFeatures = references.get(productModel);
+				if (productFeatures == null) {
+					productFeatures = new HashSet<IProductFeature>();
+					references.put(productModel, productFeatures);
+				}
+				productFeatures.add(productFeature);
+			}
+		}
+
+		for (Entry<IProductModel, Collection<IProductFeature>> entry : references.entrySet()) {
+			removeProductFeatures(entry.getKey(), entry.getValue());
 		}
 	}
 

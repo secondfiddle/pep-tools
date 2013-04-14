@@ -17,7 +17,8 @@ import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import org.eclipse.pde.internal.core.ifeature.IFeaturePlugin;
-import org.eclipse.pde.internal.ui.PDELabelProvider;
+import org.eclipse.pde.internal.core.iproduct.IProductFeature;
+import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.ui.editor.feature.FeatureEditor;
 import org.eclipse.pde.internal.ui.editor.plugin.ManifestEditor;
 import org.eclipse.swt.SWT;
@@ -31,17 +32,22 @@ import org.eclipse.ui.part.ViewPart;
 import uk.org.secondfiddle.pep.features.action.CollapseAllAction;
 import uk.org.secondfiddle.pep.features.action.ContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.FilterFeatureChildAction;
-import uk.org.secondfiddle.pep.features.action.FilterFeaturePluginAction;
 import uk.org.secondfiddle.pep.features.action.ShowCalleesContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.ShowCallersContentProviderAction;
+import uk.org.secondfiddle.pep.features.action.ShowPluginsAction;
+import uk.org.secondfiddle.pep.features.action.ShowProductsAction;
 import uk.org.secondfiddle.pep.features.action.ViewerFilterAction;
+import uk.org.secondfiddle.pep.features.support.FeatureAndProductInput;
 import uk.org.secondfiddle.pep.features.support.FeatureIndex;
 import uk.org.secondfiddle.pep.features.support.FeatureSupport;
 import uk.org.secondfiddle.pep.features.support.PluginSupport;
+import uk.org.secondfiddle.pep.features.support.ProductSupport;
 import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDragSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDropSupport;
+import uk.org.secondfiddle.pep.features.viewer.FeatureTreeLabelProvider;
 import uk.org.secondfiddle.pep.features.viewer.FeatureViewerComparator;
+import uk.org.secondfiddle.pep.products.model.ProductModelManager;
 
 @SuppressWarnings("restriction")
 public class FeatureExplorerView extends ViewPart implements ConfigurableViewer {
@@ -55,13 +61,16 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 	@Override
 	public void createPartControl(Composite parent) {
 		FeatureModelManager featureModelManager = FeatureSupport.getManager();
-		this.featureIndex = new FeatureIndex(featureModelManager);
+		ProductModelManager productModelManager = ProductSupport.getManager();
+		FeatureAndProductInput input = new FeatureAndProductInput(featureModelManager, productModelManager);
+
+		this.featureIndex = new FeatureIndex(featureModelManager, productModelManager);
 		this.viewer = createViewer(parent);
 
 		registerGlobalActions();
-		contributeToActionBar();
+		contributeToActionBar(featureModelManager, productModelManager);
 
-		initialiseViewer(featureModelManager);
+		initialiseViewer(input);
 	}
 
 	@Override
@@ -77,7 +86,7 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private TreeViewer createViewer(Composite parent) {
 		TreeViewer viewer = new TreeViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-		viewer.setLabelProvider(new PDELabelProvider());
+		viewer.setLabelProvider(new FeatureTreeLabelProvider());
 		viewer.setComparator(new FeatureViewerComparator());
 
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] { LocalSelectionTransfer.getTransfer() },
@@ -95,9 +104,9 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		return viewer;
 	}
 
-	private void initialiseViewer(FeatureModelManager featureModelManager) {
+	private void initialiseViewer(FeatureAndProductInput input) {
 		resetViewerFilters();
-		viewer.setInput(featureModelManager);
+		viewer.setInput(input);
 	}
 
 	private void resetViewerFilters() {
@@ -124,6 +133,12 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		viewer.setContentProvider(contentProvider);
 	}
 
+	@Override
+	public void configureContentProvider(ViewerInputConfiguration configuration) {
+		configuration.configure(viewer.getInput());
+		viewer.refresh();
+	}
+
 	private void registerGlobalActions() {
 		IActionBars actionBars = getViewSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.RENAME.getId(), new Action() {
@@ -139,19 +154,21 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		});
 	}
 
-	private void contributeToActionBar() {
+	private void contributeToActionBar(FeatureModelManager featureModelManager, ProductModelManager productModelManager) {
 		IActionBars actionBars = getViewSite().getActionBars();
 		IToolBarManager toolBarManager = actionBars.getToolBarManager();
 
 		toolBarManager.add(new CollapseAllAction(viewer));
 		toolBarManager.add(new Separator());
 
-		ContentProviderAction calleesAction = new ShowCalleesContentProviderAction(this);
+		ContentProviderAction calleesAction = new ShowCalleesContentProviderAction(this, featureModelManager,
+				productModelManager);
 		calleesAction.setChecked(true);
 		registerContentProviderAction(calleesAction);
 		toolBarManager.add(calleesAction);
 
-		ContentProviderAction callersAction = new ShowCallersContentProviderAction(this, featureIndex);
+		ContentProviderAction callersAction = new ShowCallersContentProviderAction(this, featureModelManager,
+				productModelManager, featureIndex);
 		registerContentProviderAction(callersAction);
 		toolBarManager.add(callersAction);
 		toolBarManager.add(new Separator());
@@ -160,9 +177,10 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		registerFilterAction(filterFeatureChildAction);
 		toolBarManager.add(filterFeatureChildAction);
 
-		ViewerFilterAction filterFeaturePluginAction = new FilterFeaturePluginAction(this);
-		registerFilterAction(filterFeaturePluginAction);
-		toolBarManager.add(filterFeaturePluginAction);
+		Action showProductsAction = new ShowProductsAction(this);
+		toolBarManager.add(showProductsAction);
+		Action showPluginsAction = new ShowPluginsAction(this);
+		toolBarManager.add(showPluginsAction);
 
 		actionBars.updateActionBars();
 	}
@@ -189,6 +207,12 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		IPluginModelBase selectedPluginModel = getSelectedPluginModel();
 		if (selectedPluginModel != null) {
 			ManifestEditor.openPluginEditor(selectedPluginModel);
+			return;
+		}
+
+		IProductModel selectedProductModel = getSelectedProductModel();
+		if (selectedProductModel != null) {
+			ProductSupport.openProductEditor(selectedProductModel);
 		}
 	}
 
@@ -199,7 +223,7 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		}
 	}
 
-	protected void handleDelete() {
+	private void handleDelete() {
 		Collection<IIdentifiable> features = getSelectedFeaturesOrChildren();
 		boolean featureDeletionCompleted = RefactoringSupport
 				.deleteFeaturesOrReferences(features, getSite().getShell());
@@ -207,6 +231,9 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		if (featureDeletionCompleted) {
 			Collection<IFeaturePlugin> plugins = getSelectedPlugins();
 			RefactoringSupport.deletePluginReferences(plugins);
+
+			Collection<IProductFeature> productFeatures = getSelectedProductFeatures();
+			RefactoringSupport.deleteProductFeatures(productFeatures);
 		}
 	}
 
@@ -228,6 +255,14 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private Collection<IFeaturePlugin> getSelectedPlugins() {
 		return PluginSupport.toFeaturePlugins(viewer.getSelection());
+	}
+
+	private Collection<IProductFeature> getSelectedProductFeatures() {
+		return ProductSupport.toProductFeatures(viewer.getSelection());
+	}
+
+	private IProductModel getSelectedProductModel() {
+		return ProductSupport.toSingleProductModel(viewer.getSelection());
 	}
 
 }

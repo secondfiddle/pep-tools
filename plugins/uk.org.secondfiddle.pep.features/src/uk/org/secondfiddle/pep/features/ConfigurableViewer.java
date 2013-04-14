@@ -11,4 +11,6 @@ public interface ConfigurableViewer {
 
 	void setContentProvider(IContentProvider contentProvider);
 
+	void configureContentProvider(ViewerInputConfiguration configuration);
+
 }

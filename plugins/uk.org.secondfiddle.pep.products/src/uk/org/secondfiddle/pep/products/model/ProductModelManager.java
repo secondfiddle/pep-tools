@@ -19,11 +19,11 @@ public class ProductModelManager {
 		return INSTANCE;
 	}
 
-	private final Map<String, IProductModel> productModels = new HashMap<String, IProductModel>();
-
 	private final Collection<IProductModelListener> listeners = new ArrayList<IProductModelListener>();
 
 	private final WorkspaceProductModelManager workspaceProductModelManager;
+
+	private Map<String, IProductModel> productModels;
 
 	private ProductModelManager() {
 		this.workspaceProductModelManager = new WorkspaceProductModelManager();
@@ -38,23 +38,33 @@ public class ProductModelManager {
 	private void handleModelProviderChange(IModelProviderEvent event) {
 		for (IModel model : event.getRemovedModels()) {
 			IProductModel productModel = (IProductModel) model;
-			productModels.remove(productModel.getProduct().getId());
+			productModels().remove(productModel.getProduct().getId());
 		}
 		for (IModel model : event.getAddedModels()) {
 			IProductModel productModel = (IProductModel) model;
-			productModels.put(productModel.getProduct().getId(), productModel);
+			productModels().put(productModel.getProduct().getId(), productModel);
 		}
 		for (IModel model : event.getChangedModels()) {
 			IProductModel productModel = (IProductModel) model;
-			productModels.put(productModel.getProduct().getId(), productModel);
+			productModels().put(productModel.getProduct().getId(), productModel);
 		}
 		for (IProductModelListener listener : listeners) {
 			listener.modelsChanged();
 		}
 	}
 
+	private Map<String, IProductModel> productModels() {
+		if (productModels == null) {
+			productModels = new HashMap<String, IProductModel>();
+			for (IProductModel productModel : workspaceProductModelManager.getProductModels()) {
+				productModels.put(productModel.getProduct().getId(), productModel);
+			}
+		}
+		return productModels;
+	}
+
 	public IProductModel findProductModel(String id) {
-		return productModels.get(id);
+		return productModels().get(id);
 	}
 
 	public IProductModel[] getModels() {

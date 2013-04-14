@@ -11,6 +11,7 @@ import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
+import org.eclipse.pde.internal.core.iproduct.IProductFeature;
 
 @SuppressWarnings("restriction")
 public class FeatureSupport {
@@ -83,6 +84,9 @@ public class FeatureSupport {
 			return getManager().findFeatureModel(featureOrChild.getId());
 		} else if (obj instanceof IProject) {
 			return getManager().getFeatureModel((IProject) obj);
+		} else if (obj instanceof IProductFeature) {
+			IProductFeature productFeature = (IProductFeature) obj;
+			return getManager().findFeatureModel(productFeature.getId());
 		} else {
 			return null;
 		}
