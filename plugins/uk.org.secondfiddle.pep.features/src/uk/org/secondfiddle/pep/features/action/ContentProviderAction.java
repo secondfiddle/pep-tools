@@ -2,6 +2,7 @@ package uk.org.secondfiddle.pep.features.action;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IContentProvider;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 
 import uk.org.secondfiddle.pep.features.ConfigurableViewer;
@@ -24,12 +25,16 @@ public abstract class ContentProviderAction extends Action {
 		this.productModelManager = productModelManager;
 	}
 
+	public abstract ViewerComparator createViewerComparator();
+
 	public abstract IContentProvider createContentProvider();
 
 	public void run() {
-		if (isChecked()) {
-			configurableViewer.setContentProvider(createContentProvider());
-		}
+		configurableViewer.setContentProvider(this);
 	}
+
+	public abstract boolean isSupportsFilters();
+
+	public abstract boolean isSupportsPlugins();
 
 }

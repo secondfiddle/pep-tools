@@ -1,7 +1,8 @@
 package uk.org.secondfiddle.pep.features;
 
-import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ViewerFilter;
+
+import uk.org.secondfiddle.pep.features.action.ContentProviderAction;
 
 public interface ConfigurableViewer {
 
@@ -9,7 +10,7 @@ public interface ConfigurableViewer {
 
 	boolean isActive(ViewerFilter filter);
 
-	void setContentProvider(IContentProvider contentProvider);
+	void setContentProvider(ContentProviderAction contentProviderAction);
 
 	void configureContentProvider(ViewerInputConfiguration configuration);
 

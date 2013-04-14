@@ -1,15 +1,10 @@
 package uk.org.secondfiddle.pep.features.viewer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.core.IFeatureModelDelta;
 import org.eclipse.pde.internal.core.IFeatureModelListener;
-import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
-import org.eclipse.pde.internal.core.iproduct.IProductModel;
 
 import uk.org.secondfiddle.pep.features.support.FeatureAndProductInput;
 import uk.org.secondfiddle.pep.products.model.IProductModelListener;
@@ -42,43 +37,6 @@ public abstract class AbstractFeatureTreeContentProvider implements ITreeContent
 		if (newInput instanceof FeatureAndProductInput) {
 			this.input = (FeatureAndProductInput) newInput;
 		}
-	}
-
-	@Override
-	public Object[] getElements(Object inputElement) {
-		if (inputElement instanceof FeatureAndProductInput) {
-			FeatureAndProductInput input = (FeatureAndProductInput) inputElement;
-			FeatureModelManager featureModelManager = input.getFeatureModelManager();
-			IFeatureModel[] featureModels = featureModelManager.getWorkspaceModels();
-
-			if (!input.isIncludeProducts()) {
-				return featureModels;
-			}
-
-			ProductModelManager productModelManager = input.getProductModelManager();
-			IProductModel[] productModels = getFeatureProducts(productModelManager);
-
-			Object[] all = new Object[productModels.length + featureModels.length];
-			System.arraycopy(productModels, 0, all, 0, productModels.length);
-			System.arraycopy(featureModels, 0, all, productModels.length, featureModels.length);
-
-			return all;
-		}
-
-		return new Object[0];
-	}
-
-	private IProductModel[] getFeatureProducts(ProductModelManager productModelManager) {
-		IProductModel[] productModels = productModelManager.getModels();
-
-		Collection<IProductModel> featureProducts = new ArrayList<IProductModel>();
-		for (IProductModel productModel : productModels) {
-			if (productModel.getProduct().useFeatures()) {
-				featureProducts.add(productModel);
-			}
-		}
-
-		return featureProducts.toArray(new IProductModel[featureProducts.size()]);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package uk.org.secondfiddle.pep.features.action;
 
 import org.eclipse.jface.viewers.IContentProvider;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.ui.PDEPluginImages;
 
@@ -24,8 +25,23 @@ public class ShowCallersContentProviderAction extends ContentProviderAction {
 	}
 
 	@Override
+	public ViewerComparator createViewerComparator() {
+		return new ViewerComparator();
+	}
+
+	@Override
 	public IContentProvider createContentProvider() {
 		return new FeatureTreeCallersContentProvider(featureModelManager, productModelManager, featureIndex);
+	}
+
+	@Override
+	public boolean isSupportsFilters() {
+		return false;
+	}
+
+	@Override
+	public boolean isSupportsPlugins() {
+		return false;
 	}
 
 }

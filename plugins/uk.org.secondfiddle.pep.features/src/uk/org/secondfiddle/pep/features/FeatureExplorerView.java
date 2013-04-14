@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.pde.core.IIdentifiable;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
@@ -46,13 +47,16 @@ import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDragSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDropSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeLabelProvider;
-import uk.org.secondfiddle.pep.features.viewer.FeatureViewerComparator;
 import uk.org.secondfiddle.pep.products.model.ProductModelManager;
 
 @SuppressWarnings("restriction")
 public class FeatureExplorerView extends ViewPart implements ConfigurableViewer {
 
+	private final Collection<ViewerFilterAction> viewerFilterActions = new ArrayList<ViewerFilterAction>();
+
 	private final Collection<ViewerFilter> viewerFilters = new ArrayList<ViewerFilter>();
+
+	private Action showPluginsAction;
 
 	private TreeViewer viewer;
 
@@ -87,7 +91,6 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 	private TreeViewer createViewer(Composite parent) {
 		TreeViewer viewer = new TreeViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.setLabelProvider(new FeatureTreeLabelProvider());
-		viewer.setComparator(new FeatureViewerComparator());
 
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] { LocalSelectionTransfer.getTransfer() },
 				new FeatureTreeDragSupport(viewer));
@@ -128,9 +131,25 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		return viewerFilters.contains(filter);
 	}
 
-	@Override
-	public void setContentProvider(IContentProvider contentProvider) {
+	private void setContentProvider(ViewerComparator viewerComparator, IContentProvider contentProvider,
+			boolean supportsFilters, boolean supportsPlugins) {
+		viewer.setComparator(viewerComparator);
 		viewer.setContentProvider(contentProvider);
+
+		setViewerFilterActionsEnabled(supportsFilters);
+		showPluginsAction.setEnabled(supportsPlugins);
+
+		if (supportsFilters) {
+			resetViewerFilters();
+		} else {
+			viewer.setFilters(new ViewerFilter[0]);
+		}
+	}
+
+	private void setViewerFilterActionsEnabled(boolean supportsFilters) {
+		for (ViewerFilterAction viewerFilterAction : viewerFilterActions) {
+			viewerFilterAction.setEnabled(supportsFilters);
+		}
 	}
 
 	@Override
@@ -164,36 +183,41 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		ContentProviderAction calleesAction = new ShowCalleesContentProviderAction(this, featureModelManager,
 				productModelManager);
 		calleesAction.setChecked(true);
-		registerContentProviderAction(calleesAction);
 		toolBarManager.add(calleesAction);
 
 		ContentProviderAction callersAction = new ShowCallersContentProviderAction(this, featureModelManager,
 				productModelManager, featureIndex);
-		registerContentProviderAction(callersAction);
 		toolBarManager.add(callersAction);
 		toolBarManager.add(new Separator());
 
 		ViewerFilterAction filterFeatureChildAction = new FilterFeatureChildAction(this, featureIndex);
-		registerFilterAction(filterFeatureChildAction);
 		toolBarManager.add(filterFeatureChildAction);
 
+		showPluginsAction = new ShowPluginsAction(this);
+		toolBarManager.add(showPluginsAction);
 		Action showProductsAction = new ShowProductsAction(this);
 		toolBarManager.add(showProductsAction);
-		Action showPluginsAction = new ShowPluginsAction(this);
-		toolBarManager.add(showPluginsAction);
+
+		setContentProvider(calleesAction);
+		setContentProvider(callersAction);
+		registerFilterAction(filterFeatureChildAction);
 
 		actionBars.updateActionBars();
 	}
 
 	private void registerFilterAction(ViewerFilterAction filterAction) {
+		viewerFilterActions.add(filterAction);
 		if (!filterAction.isChecked()) {
 			viewerFilters.add(filterAction.getViewerFilter());
 		}
 	}
 
-	private void registerContentProviderAction(ContentProviderAction contentProviderAction) {
+	@Override
+	public void setContentProvider(ContentProviderAction contentProviderAction) {
 		if (contentProviderAction.isChecked()) {
-			setContentProvider(contentProviderAction.createContentProvider());
+			setContentProvider(contentProviderAction.createViewerComparator(),
+					contentProviderAction.createContentProvider(), contentProviderAction.isSupportsFilters(),
+					contentProviderAction.isSupportsPlugins());
 		}
 	}
 

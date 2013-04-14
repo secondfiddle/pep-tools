@@ -1,11 +1,13 @@
 package uk.org.secondfiddle.pep.features.action;
 
 import org.eclipse.jface.viewers.IContentProvider;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.pde.internal.core.FeatureModelManager;
 import org.eclipse.pde.internal.ui.PDEPluginImages;
 
 import uk.org.secondfiddle.pep.features.ConfigurableViewer;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeCalleesContentProvider;
+import uk.org.secondfiddle.pep.features.viewer.FeatureViewerComparator;
 import uk.org.secondfiddle.pep.products.model.ProductModelManager;
 
 @SuppressWarnings("restriction")
@@ -19,8 +21,23 @@ public class ShowCalleesContentProviderAction extends ContentProviderAction {
 	}
 
 	@Override
+	public ViewerComparator createViewerComparator() {
+		return new FeatureViewerComparator();
+	}
+
+	@Override
 	public IContentProvider createContentProvider() {
 		return new FeatureTreeCalleesContentProvider(featureModelManager, productModelManager);
+	}
+
+	@Override
+	public boolean isSupportsFilters() {
+		return true;
+	}
+
+	@Override
+	public boolean isSupportsPlugins() {
+		return true;
 	}
 
 }
