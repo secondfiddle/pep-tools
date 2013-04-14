@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PEP Tools: Product Support
+Bundle-SymbolicName: uk.org.secondfiddle.pep.products;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Second Fiddle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.pde.core;bundle-version="3.8.0",
+ org.eclipse.pde.ui;bundle-version="3.7.0",
+ org.eclipse.core.resources,
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ org.eclipse.ui;bundle-version="3.8.0",
+ org.eclipse.jdt.core;bundle-version="3.8.1"
+Export-Package: uk.org.secondfiddle.pep.products
+Bundle-Activator: uk.org.secondfiddle.pep.products.ProductNatureActivator
+Bundle-ActivationPolicy: lazy

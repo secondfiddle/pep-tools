@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="uk.org.secondfiddle.pep.products.ProductNature"
+         name="Product Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="uk.org.secondfiddle.pep.products.ProductNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         id="uk.org.secondfiddle.pep.products.ProductBuilder"
+         name="Product Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run
+               class="uk.org.secondfiddle.pep.products.ProductBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="uk.org.secondfiddle.pep.products.ProductNatureAddAction"
+            nameFilter="*.product"
+            objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="uk.org.secondfiddle.pep.products.ui.ProductNatureAddAction"
+               enablesFor="1"
+               id="uk.org.secondfiddle.pep.products.ProductNatureAddAction"
+               label="Add Product Nature"
+               menubarPath="secondfiddle">
+            <enablement>
+               <not>
+                  <objectState
+                        name="projectNature"
+                        value="uk.org.secondfiddle.pep.products.ProductNature">
+                  </objectState>
+               </not>
+            </enablement>
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="uk.org.secondfiddle.pep.products.ProductNatureActivator$ForceActivation">
+      </startup>
+   </extension>
+
+</plugin>
