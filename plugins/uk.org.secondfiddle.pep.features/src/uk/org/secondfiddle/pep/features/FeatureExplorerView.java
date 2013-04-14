@@ -28,6 +28,8 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.org.secondfiddle.pep.features.action.CollapseAllAction;
@@ -56,6 +58,8 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private final Collection<ViewerFilter> viewerFilters = new ArrayList<ViewerFilter>();
 
+	private PatternFilter patternFilter;
+
 	private Action showPluginsAction;
 
 	private TreeViewer viewer;
@@ -67,6 +71,9 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		FeatureModelManager featureModelManager = FeatureSupport.getManager();
 		ProductModelManager productModelManager = ProductSupport.getManager();
 		FeatureAndProductInput input = new FeatureAndProductInput(featureModelManager, productModelManager);
+
+		this.patternFilter = new PatternFilter();
+		this.viewerFilters.add(patternFilter);
 
 		this.featureIndex = new FeatureIndex(featureModelManager, productModelManager);
 		this.viewer = createViewer(parent);
@@ -89,7 +96,10 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 	}
 
 	private TreeViewer createViewer(Composite parent) {
-		TreeViewer viewer = new TreeViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+		FilteredTree filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, patternFilter,
+				true);
+
+		TreeViewer viewer = filteredTree.getViewer();
 		viewer.setLabelProvider(new FeatureTreeLabelProvider());
 
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] { LocalSelectionTransfer.getTransfer() },
@@ -142,7 +152,7 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		if (supportsFilters) {
 			resetViewerFilters();
 		} else {
-			viewer.setFilters(new ViewerFilter[0]);
+			viewer.setFilters(new ViewerFilter[] { patternFilter });
 		}
 	}
 
