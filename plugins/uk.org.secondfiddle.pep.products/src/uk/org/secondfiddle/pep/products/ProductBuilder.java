@@ -57,7 +57,7 @@ public class ProductBuilder extends IncrementalProjectBuilder {
 		IProductModel model = new WorkspaceProductModel(productFile, false);
 		model.load();
 
-		Collection<String> errorMessages = ProductValidator.validate(model.getProduct());
+		Collection<String> errorMessages = ProductValidator.validate(model);
 		for (String errorMessage : errorMessages) {
 			IMarker marker = productFile.createMarker(PDEMarkerFactory.MARKER_ID);
 			marker.setAttribute(IMarker.MESSAGE, errorMessage);

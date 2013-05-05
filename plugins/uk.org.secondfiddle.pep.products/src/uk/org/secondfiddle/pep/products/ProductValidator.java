@@ -1,5 +1,7 @@
 package uk.org.secondfiddle.pep.products;
 
+import static java.util.Collections.singleton;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,6 +11,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.commons.io.FilenameUtils;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -24,6 +28,7 @@ import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import org.eclipse.pde.internal.core.ifeature.IFeaturePlugin;
 import org.eclipse.pde.internal.core.iproduct.IProduct;
 import org.eclipse.pde.internal.core.iproduct.IProductFeature;
+import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.iproduct.IProductPlugin;
 import org.eclipse.pde.internal.launching.launcher.LaunchValidationOperation;
 import org.eclipse.pde.internal.launching.launcher.ProductValidationOperation;
@@ -36,8 +41,14 @@ import org.eclipse.pde.internal.ui.editor.product.ProductValidateAction;
 @SuppressWarnings("restriction")
 public class ProductValidator {
 
-	public static Collection<String> validate(IProduct product) {
+	public static Collection<String> validate(IProductModel productModel) {
+		if (!productModel.isValid()) {
+			return singleton("Invalid product file");
+		}
+
 		Collection<String> errorMessages = new ArrayList<String>();
+		IProduct product = productModel.getProduct();
+
 		basicValidation(product, errorMessages);
 
 		if (errorMessages.isEmpty()) {
@@ -48,6 +59,13 @@ public class ProductValidator {
 	}
 
 	private static void basicValidation(IProduct product, Collection<String> errorMessages) {
+		IResource productFile = product.getModel().getUnderlyingResource();
+		String baseName = FilenameUtils.getBaseName(productFile.getName());
+		if (!baseName.equals(product.getId())) {
+			errorMessages.add(String.format("Mismatching product ID and filename - expected filename %s.%s",
+					product.getId(), productFile.getFileExtension()));
+		}
+
 		if (product.useFeatures()) {
 			FeatureModelManager featureModelManager = PDECore.getDefault().getFeatureModelManager();
 			for (IProductFeature feature : product.getFeatures()) {
