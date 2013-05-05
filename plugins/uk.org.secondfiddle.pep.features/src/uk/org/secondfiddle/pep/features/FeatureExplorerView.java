@@ -46,6 +46,7 @@ import uk.org.secondfiddle.pep.features.support.FeatureSupport;
 import uk.org.secondfiddle.pep.features.support.PluginSupport;
 import uk.org.secondfiddle.pep.features.support.ProductSupport;
 import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
+import uk.org.secondfiddle.pep.features.viewer.FeatureElementComparer;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDragSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDropSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeLabelProvider;
@@ -100,6 +101,7 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 				true);
 
 		TreeViewer viewer = filteredTree.getViewer();
+		viewer.setComparer(new FeatureElementComparer());
 		viewer.setLabelProvider(new FeatureTreeLabelProvider());
 
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] { LocalSelectionTransfer.getTransfer() },
