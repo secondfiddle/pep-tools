@@ -16,7 +16,7 @@ public class ShowProductsAction extends Action implements ViewerInputConfigurati
 		super("", AS_CHECK_BOX);
 		this.configurableViewer = configurableViewer;
 
-		setToolTipText("Show Products");
+		setToolTipText("Show Feature Products");
 		setImageDescriptor(PDEPluginImages.DESC_PRODUCT_DEFINITION);
 	}
 
