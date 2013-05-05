@@ -51,13 +51,13 @@ public class WorkspaceProductModelManager extends WorkspaceModelManager {
 		IFile file = (IFile) delta.getResource();
 		IProject project = file.getProject();
 
-		for (IFile product : ProductSupport.getProductFiles(project)) {
+		if (ProductSupport.isProductFile(file)) {
 			Object model = getModel(project);
 			int kind = delta.getKind();
 			if (kind == IResourceDelta.REMOVED && model != null) {
 				removeModel(project);
 			} else if (kind == IResourceDelta.ADDED || model == null) {
-				createModel(product.getProject(), true);
+				createModel(project, true);
 			} else if (kind == IResourceDelta.CHANGED && (IResourceDelta.CONTENT & delta.getFlags()) != 0) {
 				loadModel((IProductModel) model, true);
 				addChange(model, IModelProviderEvent.MODELS_CHANGED);
