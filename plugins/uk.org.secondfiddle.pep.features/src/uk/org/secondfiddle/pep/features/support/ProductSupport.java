@@ -15,7 +15,6 @@ import org.eclipse.pde.internal.core.ICoreConstants;
 import org.eclipse.pde.internal.core.iproduct.IProduct;
 import org.eclipse.pde.internal.core.iproduct.IProductFeature;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
-import org.eclipse.pde.internal.ui.IPDEUIConstants;
 import org.eclipse.pde.internal.ui.PDEPlugin;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PartInitException;
@@ -24,6 +23,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
 import uk.org.secondfiddle.pep.products.model.ProductModelManager;
+import uk.org.secondfiddle.pep.products.ui.ProductEditorWithSource;
 
 @SuppressWarnings("restriction")
 public class ProductSupport {
@@ -35,14 +35,14 @@ public class ProductSupport {
 		IResource resource = productModel.getUnderlyingResource();
 		try {
 			IEditorInput input = null;
-			if (resource != null)
+			if (resource != null) {
 				input = new FileEditorInput((IFile) resource);
-			else {
+			} else {
 				File file = new File(productModel.getInstallLocation(), ICoreConstants.FEATURE_FILENAME_DESCRIPTOR);
 				IFileStore store = EFS.getStore(file.toURI());
 				input = new FileStoreEditorInput(store);
 			}
-			IDE.openEditor(PDEPlugin.getActivePage(), input, IPDEUIConstants.PRODUCT_EDITOR_ID, true);
+			IDE.openEditor(PDEPlugin.getActivePage(), input, ProductEditorWithSource.ID, true);
 		} catch (PartInitException e) {
 			PDEPlugin.logException(e);
 		} catch (CoreException e) {
