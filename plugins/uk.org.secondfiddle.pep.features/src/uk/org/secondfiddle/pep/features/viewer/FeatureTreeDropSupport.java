@@ -2,6 +2,7 @@ package uk.org.secondfiddle.pep.features.viewer;
 
 import java.util.Collection;
 
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
@@ -61,7 +62,7 @@ public class FeatureTreeDropSupport extends ViewerDropAdapter {
 
 	@Override
 	public boolean validateDrop(Object target, int operation, TransferData transferType) {
-		ISelection selection = getViewer().getSelection();
+		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 
 		if (getValidFeatureTarget() != null) {
 			boolean features = !getValidFeatureSources(selection).isEmpty();
