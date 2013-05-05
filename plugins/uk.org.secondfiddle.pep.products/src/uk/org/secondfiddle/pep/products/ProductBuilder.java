@@ -29,15 +29,12 @@ public class ProductBuilder extends IncrementalProjectBuilder {
 		IProject project = getProject();
 		project.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
 
-		boolean foundProduct = false;
-		for (IResource member : project.members()) {
-			if (ProductSupport.isProductFile(member)) {
-				validateProduct((IFile) member);
-				foundProduct = true;
-			}
+		IFile[] products = ProductSupport.getProductFiles(project);
+		for (IFile product : products) {
+			validateProduct(product);
 		}
 
-		if (!foundProduct) {
+		if (products.length == 0) {
 			IMarker marker = project.createMarker(MARKER_TYPE);
 			marker.setAttribute(IMarker.MESSAGE,
 					String.format("Product project '%s' contains no products", project.getName()));

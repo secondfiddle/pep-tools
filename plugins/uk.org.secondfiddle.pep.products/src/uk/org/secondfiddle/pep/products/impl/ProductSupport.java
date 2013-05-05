@@ -1,5 +1,8 @@
 package uk.org.secondfiddle.pep.products.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -11,19 +14,18 @@ public class ProductSupport {
 	}
 
 	public static IFile[] getProductFiles(IProject project) {
-		IFile product = null;
+		Collection<IFile> products = null;
 
 		for (IResource member : getMembers(project)) {
 			if (isProductFile(member)) {
-				if (product == null) {
-					product = (IFile) member;
-				} else {
-					throw new UnsupportedOperationException("Multiple products in one project not supported");
+				if (products == null) {
+					products = new ArrayList<IFile>();
 				}
+				products.add((IFile) member);
 			}
 		}
 
-		return (product == null) ? new IFile[0] : new IFile[] { product };
+		return (products == null) ? new IFile[0] : products.toArray(new IFile[products.size()]);
 	}
 
 	public static boolean isProductFile(IResource resource) {

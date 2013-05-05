@@ -1,12 +1,13 @@
 package uk.org.secondfiddle.pep.products.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.pde.core.IModel;
 import org.eclipse.pde.core.IModelProviderEvent;
 import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.WorkspaceFeatureModelManager;
@@ -28,22 +29,72 @@ public class WorkspaceProductModelManager extends WorkspaceModelManager {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	protected void createModel(IProject project, boolean notify) {
 		for (IFile product : ProductSupport.getProductFiles(project)) {
-			IProductModel model = new WorkspaceProductModel(product, true);
-			loadModel(model, false);
+			createSingleModel(project, product, notify);
+		}
+	}
 
-			if (fModels == null) {
-				fModels = new HashMap<IProject, IModel>();
-			}
+	@SuppressWarnings("unchecked")
+	private void createSingleModel(IProject project, IFile product, boolean notify) {
+		IProductModel model = new WorkspaceProductModel(product, true);
+		loadModel(model, false);
 
-			fModels.put(project, model);
+		if (fModels == null) {
+			fModels = new HashMap<IProject, Collection<IProductModel>>();
+		}
 
-			if (notify) {
-				addChange(model, IModelProviderEvent.MODELS_ADDED);
+		Collection<IProductModel> models = (Collection<IProductModel>) fModels.get(project);
+		if (models == null) {
+			models = new ArrayList<IProductModel>();
+			fModels.put(project, models);
+		}
+
+		models.add(model);
+
+		if (notify) {
+			addChange(model, IModelProviderEvent.MODELS_ADDED);
+		}
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected Object removeModel(IProject project) {
+		Object models = fModels != null ? fModels.remove(project) : null;
+		if (models != null) {
+			for (IProductModel model : (Collection<IProductModel>) models) {
+				addChange(model, IModelProviderEvent.MODELS_REMOVED);
 			}
 		}
+		return models;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Object removeSingleModel(IProject project, Object model) {
+		Object models = fModels != null ? fModels.get(project) : null;
+		if (models != null) {
+			Collection<IProductModel> modelsCollection = (Collection<IProductModel>) models;
+			if (modelsCollection.remove(model)) {
+				addChange(model, IModelProviderEvent.MODELS_REMOVED);
+			}
+			if (modelsCollection.isEmpty()) {
+				fModels.remove(project);
+			}
+		}
+		return models;
+	}
+
+	@SuppressWarnings("unchecked")
+	private IProductModel getSingleModel(IFile productFile) {
+		Collection<IProductModel> models = (Collection<IProductModel>) getModel(productFile.getProject());
+		if (models != null) {
+			for (IProductModel model : models) {
+				if (model.getUnderlyingResource().equals(productFile)) {
+					return model;
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -52,12 +103,12 @@ public class WorkspaceProductModelManager extends WorkspaceModelManager {
 		IProject project = file.getProject();
 
 		if (ProductSupport.isProductFile(file)) {
-			Object model = getModel(project);
+			Object model = getSingleModel(file);
 			int kind = delta.getKind();
 			if (kind == IResourceDelta.REMOVED && model != null) {
-				removeModel(project);
-			} else if (kind == IResourceDelta.ADDED || model == null) {
-				createModel(project, true);
+				removeSingleModel(project, model);
+			} else if (kind == IResourceDelta.ADDED && model == null) {
+				createSingleModel(project, file, true);
 			} else if (kind == IResourceDelta.CHANGED && (IResourceDelta.CONTENT & delta.getFlags()) != 0) {
 				loadModel((IProductModel) model, true);
 				addChange(model, IModelProviderEvent.MODELS_CHANGED);
@@ -80,11 +131,13 @@ public class WorkspaceProductModelManager extends WorkspaceModelManager {
 	@SuppressWarnings("unchecked")
 	protected IProductModel[] getProductModels() {
 		initialize();
-		return (IProductModel[]) fModels.values().toArray(new IProductModel[fModels.size()]);
-	}
 
-	protected IProductModel getProductModel(IProject project) {
-		return (IProductModel) getModel(project);
+		Collection<IProductModel> flattenedModels = new ArrayList<IProductModel>();
+		for (Collection<IProductModel> models : (Collection<Collection<IProductModel>>) fModels.values()) {
+			flattenedModels.addAll(models);
+		}
+
+		return (IProductModel[]) flattenedModels.toArray(new IProductModel[flattenedModels.size()]);
 	}
 
 }
