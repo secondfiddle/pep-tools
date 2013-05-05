@@ -51,5 +51,17 @@
             class="uk.org.secondfiddle.pep.products.ProductNatureActivator$ForceActivation">
       </startup>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="uk.org.secondfiddle.pep.products.ui.ProductEditorWithSource"
+            contributorClass="uk.org.secondfiddle.pep.products.ui.UnrestrictedProductEditorContributor"
+            default="true"
+            extensions="product"
+            icon="icons/product_xml_obj.gif"
+            id="uk.org.secondfiddle.pep.products.productEditorWithSource"
+            name="Product Configuration Editor With Source">
+      </editor>
+   </extension>
 
 </plugin>
