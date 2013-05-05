@@ -9,6 +9,8 @@ import uk.org.secondfiddle.pep.products.model.ProductModelManager;
 
 public class ProductNatureActivator extends Plugin {
 
+	public static final String PLUGIN_ID = ProductNatureActivator.class.getPackage().getName();
+
 	private ProductRebuilder productRebuilder;
 
 	private ProductModelManager productModelManager;

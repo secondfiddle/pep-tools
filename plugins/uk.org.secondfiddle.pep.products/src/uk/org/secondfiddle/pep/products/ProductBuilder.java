@@ -10,7 +10,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.pde.internal.core.builders.PDEMarkerFactory;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.product.WorkspaceProductModel;
 import org.eclipse.ui.ide.IDE;
@@ -23,16 +22,12 @@ public class ProductBuilder extends IncrementalProjectBuilder {
 
 	public static final String ID = ProductBuilder.class.getName();
 
-	private Long wholeProjectMarkerId;
+	private static final String MARKER_TYPE = ProductNatureActivator.PLUGIN_ID + ".problem";
 
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		IProject project = getProject();
-
-		if (wholeProjectMarkerId != null) {
-			project.getMarker(wholeProjectMarkerId).delete();
-			wholeProjectMarkerId = null;
-		}
+		project.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
 
 		boolean foundProduct = false;
 		for (IResource member : project.members()) {
@@ -43,26 +38,25 @@ public class ProductBuilder extends IncrementalProjectBuilder {
 		}
 
 		if (!foundProduct) {
-			IMarker marker = project.createMarker(IMarker.PROBLEM);
+			IMarker marker = project.createMarker(MARKER_TYPE);
 			marker.setAttribute(IMarker.MESSAGE,
 					String.format("Product project '%s' contains no products", project.getName()));
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
 			marker.setAttribute(IDE.EDITOR_ID_ATTR, ProductEditorWithSource.ID);
-			wholeProjectMarkerId = marker.getId();
 		}
 
 		return new IProject[0];
 	}
 
 	private void validateProduct(IFile productFile) throws CoreException {
-		productFile.deleteMarkers(PDEMarkerFactory.MARKER_ID, false, IResource.DEPTH_ZERO);
+		productFile.deleteMarkers(MARKER_TYPE, false, IResource.DEPTH_ZERO);
 
 		IProductModel model = new WorkspaceProductModel(productFile, false);
 		model.load();
 
 		Collection<String> errorMessages = ProductValidator.validate(model);
 		for (String errorMessage : errorMessages) {
-			IMarker marker = productFile.createMarker(PDEMarkerFactory.MARKER_ID);
+			IMarker marker = productFile.createMarker(MARKER_TYPE);
 			marker.setAttribute(IMarker.MESSAGE, errorMessage);
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			marker.setAttribute(IDE.EDITOR_ID_ATTR, ProductEditorWithSource.ID);
