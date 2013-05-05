@@ -13,8 +13,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.pde.internal.core.builders.PDEMarkerFactory;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.product.WorkspaceProductModel;
+import org.eclipse.ui.ide.IDE;
 
 import uk.org.secondfiddle.pep.products.impl.ProductSupport;
+import uk.org.secondfiddle.pep.products.ui.ProductEditorWithSource;
 
 @SuppressWarnings("restriction")
 public class ProductBuilder extends IncrementalProjectBuilder {
@@ -45,6 +47,7 @@ public class ProductBuilder extends IncrementalProjectBuilder {
 			marker.setAttribute(IMarker.MESSAGE,
 					String.format("Product project '%s' contains no products", project.getName()));
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+			marker.setAttribute(IDE.EDITOR_ID_ATTR, ProductEditorWithSource.ID);
 			wholeProjectMarkerId = marker.getId();
 		}
 
@@ -62,6 +65,7 @@ public class ProductBuilder extends IncrementalProjectBuilder {
 			IMarker marker = productFile.createMarker(PDEMarkerFactory.MARKER_ID);
 			marker.setAttribute(IMarker.MESSAGE, errorMessage);
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			marker.setAttribute(IDE.EDITOR_ID_ATTR, ProductEditorWithSource.ID);
 		}
 	}
 
