@@ -50,6 +50,7 @@ import uk.org.secondfiddle.pep.features.viewer.FeatureElementComparer;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDragSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDropSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeLabelProvider;
+import uk.org.secondfiddle.pep.features.viewer.RootElementsFilteredTree;
 import uk.org.secondfiddle.pep.products.model.ProductModelManager;
 
 @SuppressWarnings("restriction")
@@ -72,12 +73,12 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		FeatureModelManager featureModelManager = FeatureSupport.getManager();
 		ProductModelManager productModelManager = ProductSupport.getManager();
 		FeatureAndProductInput input = new FeatureAndProductInput(featureModelManager, productModelManager);
-
-		this.patternFilter = new PatternFilter();
-		this.viewerFilters.add(patternFilter);
-
 		this.featureIndex = new FeatureIndex(featureModelManager, productModelManager);
-		this.viewer = createViewer(parent);
+
+		FilteredTree filteredTree = createFilteredTree(parent);
+		this.viewer = filteredTree.getViewer();
+		this.patternFilter = filteredTree.getPatternFilter();
+		this.viewerFilters.add(patternFilter);
 
 		registerGlobalActions();
 		contributeToActionBar(featureModelManager, productModelManager);
@@ -96,9 +97,12 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		featureIndex.dispose();
 	}
 
-	private TreeViewer createViewer(Composite parent) {
-		FilteredTree filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, patternFilter,
-				true);
+	private FilteredTree createFilteredTree(Composite parent) {
+		FilteredTree filteredTree = new RootElementsFilteredTree(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+		filteredTree.setInitialText("search for feature");
+
+		PatternFilter patternFilter = filteredTree.getPatternFilter();
+		patternFilter.setIncludeLeadingWildcard(true);
 
 		TreeViewer viewer = filteredTree.getViewer();
 		viewer.setComparer(new FeatureElementComparer());
@@ -116,7 +120,7 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 			}
 		});
 
-		return viewer;
+		return filteredTree;
 	}
 
 	private void initialiseViewer(FeatureAndProductInput input) {
