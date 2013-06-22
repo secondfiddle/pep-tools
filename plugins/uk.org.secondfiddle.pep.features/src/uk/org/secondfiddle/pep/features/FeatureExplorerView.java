@@ -261,6 +261,11 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		if (selectedFeatureModel != null) {
 			RefactoringSupport.renameFeature(selectedFeatureModel, getSite().getShell());
 		}
+
+		IProductModel selectedProductModel = getSelectedEditableProductModel();
+		if (selectedProductModel != null) {
+			RefactoringSupport.renameProduct(selectedProductModel, getSite().getShell());
+		}
 	}
 
 	private void handleDelete() {
@@ -303,6 +308,10 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private IProductModel getSelectedProductModel() {
 		return ProductSupport.toSingleProductModel(viewer.getSelection());
+	}
+
+	private IProductModel getSelectedEditableProductModel() {
+		return ProductSupport.toEditableProductModel(getSelectedProductModel());
 	}
 
 }

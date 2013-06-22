@@ -59,6 +59,7 @@ import org.eclipse.pde.internal.core.util.IdUtil;
 import org.eclipse.swt.widgets.Shell;
 
 import uk.org.secondfiddle.pep.features.refactor.RenameFeatureWizard;
+import uk.org.secondfiddle.pep.features.refactor.RenameProductWizard;
 
 @SuppressWarnings("restriction")
 public class RefactoringSupport {
@@ -239,7 +240,49 @@ public class RefactoringSupport {
 		});
 	}
 
-	public static void renameFeature(final IFeatureModel featureModel, final Shell shell) {
+	public static void renameProduct(IProductModel productModel, Shell shell) {
+		RenameProductWizard wizard = new RenameProductWizard(productModel);
+		Dialog dialog = new RefactoringWizardDialog2(shell, wizard);
+		dialog.open();
+	}
+
+	public static void renameProduct(final IProductModel productModel, final String newId) {
+		Job job = new WorkspaceJob("Renaming Product") {
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+				productModel.getProduct().setId(newId);
+				((IEditableModel) productModel).save();
+
+				IResource productFile = productModel.getUnderlyingResource();
+				productFile.move(getNewLocation(productFile, newId + ".product"), false, monitor);
+
+				return Status.OK_STATUS;
+			}
+		};
+		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		job.schedule();
+	}
+
+	public static String validateRenameProduct(IProductModel productModel, String id) {
+		if (!IdUtil.isValidCompositeID(id)) {
+			return "Invalid ID";
+		}
+
+		if (id.endsWith(".product")) {
+			return "Product ID should not end with '.product'";
+		}
+
+		IResource productFile = productModel.getUnderlyingResource();
+		IWorkspace workspace = productFile.getWorkspace();
+		IStatus nameValidation = workspace.validateName(id + ".product", IResource.FILE);
+		if (!nameValidation.isOK()) {
+			return nameValidation.getMessage();
+		}
+
+		return null;
+	}
+
+	public static void renameFeature(IFeatureModel featureModel, Shell shell) {
 		RenameFeatureWizard wizard = new RenameFeatureWizard(featureModel);
 		Dialog dialog = new RefactoringWizardDialog2(shell, wizard);
 		dialog.open();
@@ -541,6 +584,11 @@ public class RefactoringSupport {
 		} catch (CoreException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static IPath getNewLocation(IResource resource, String newName) {
+		IPath location = resource.getFullPath();
+		return location.removeLastSegments(1).append(newName);
 	}
 
 }
