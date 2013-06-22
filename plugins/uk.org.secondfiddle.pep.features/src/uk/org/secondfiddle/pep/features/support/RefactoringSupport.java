@@ -10,6 +10,7 @@ import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.MESSAGE_
 import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURE;
 import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURES;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import org.eclipse.core.internal.utils.FileUtil;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -244,20 +246,39 @@ public class RefactoringSupport {
 	}
 
 	public static String validateRenameFeature(IFeatureModel featureModel, String name) {
+		IProject project = getProject(featureModel);
+		return validateRenameProject(project, name);
+	}
+
+	private static String validateRenameProject(IProject project, String name) {
+		if (project.getName().equals(name)) {
+			return null;
+		}
+
 		if (!IdUtil.isValidCompositeID(name)) {
 			return "Invalid ID";
 		}
 
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IProject project = getProject(featureModel);
-		if (!project.getName().equals(name) && workspace.getRoot().getProject(name).exists()) {
+		if (workspace.getRoot().getProject(name).exists()) {
 			return "A project already exists with this name";
 		}
 
+		IStatus nameValidation = workspace.validateName(name, IResource.PROJECT);
+		if (!nameValidation.isOK()) {
+			return nameValidation.getMessage();
+		}
+
 		IPath newLocation = getNewLocation(project, name);
-		IStatus locationValidation = workspace.validateProjectLocation(project, newLocation);
-		if (!locationValidation.isOK()) {
-			return locationValidation.getMessage();
+		if (newLocation != null) {
+			if (newLocation.toFile().exists()) {
+				return "A folder already exists at this location";
+			}
+
+			IStatus locationValidation = workspace.validateProjectLocation(project, newLocation);
+			if (!locationValidation.isOK()) {
+				return locationValidation.getMessage();
+			}
 		}
 
 		return null;
@@ -281,7 +302,11 @@ public class RefactoringSupport {
 				// rename/move project
 				IProjectDescription description = project.getDescription();
 				description.setName(newName);
-				description.setLocation(newLocation);
+
+				if (newLocation != null) {
+					description.setLocation(newLocation);
+				}
+
 				project.move(description, false, monitor);
 
 				return Status.OK_STATUS;
@@ -492,9 +517,30 @@ public class RefactoringSupport {
 		}
 	}
 
+	/**
+	 * Returns the new project location, or {@code null} if the project is in
+	 * (and will remain in) the default location.
+	 * 
+	 * @see IProjectDescription#getLocationURI()
+	 * 
+	 * @param project
+	 *            the project to get the new location for
+	 * @param newName
+	 *            the new name of the project
+	 * @return
+	 */
 	private static IPath getNewLocation(IProject project, String newName) {
-		IPath location = project.getLocation();
-		return location.removeLastSegments(1).append(newName);
+		try {
+			URI locationUri = project.getDescription().getLocationURI();
+			if (locationUri == null) {
+				return null;
+			}
+
+			IPath location = FileUtil.toPath(locationUri);
+			return location.removeLastSegments(1).append(newName);
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
