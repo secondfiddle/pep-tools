@@ -262,6 +262,11 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 			RefactoringSupport.renameFeature(selectedFeatureModel, getSite().getShell());
 		}
 
+		IPluginModelBase selectedPluginModel = getSelectedEditablePluginModel();
+		if (selectedPluginModel != null) {
+			RefactoringSupport.renamePlugin(selectedPluginModel, getSite().getShell());
+		}
+
 		IProductModel selectedProductModel = getSelectedEditableProductModel();
 		if (selectedProductModel != null) {
 			RefactoringSupport.renameProduct(selectedProductModel, getSite().getShell());
@@ -296,6 +301,10 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private IPluginModelBase getSelectedPluginModel() {
 		return PluginSupport.toSinglePluginModel(viewer.getSelection());
+	}
+
+	private IPluginModelBase getSelectedEditablePluginModel() {
+		return PluginSupport.toEditablePluginModel(getSelectedPluginModel());
 	}
 
 	private Collection<IFeaturePlugin> getSelectedPlugins() {

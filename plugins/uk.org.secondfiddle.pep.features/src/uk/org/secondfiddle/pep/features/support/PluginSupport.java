@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -30,6 +31,14 @@ public class PluginSupport {
 
 		Object firstElement = structuredSelection.getFirstElement();
 		return toPluginModel(firstElement);
+	}
+
+	public static IPluginModelBase toEditablePluginModel(Object modelObj) {
+		IPluginModelBase pluginModel = toPluginModel(modelObj);
+		if (pluginModel == null) {
+			return null;
+		}
+		return (pluginModel.getAdapter(IResource.class) instanceof IProject) ? pluginModel : null;
 	}
 
 	public static Collection<IPluginModelBase> toPluginModels(Object selection) {

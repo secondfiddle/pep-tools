@@ -11,6 +11,7 @@ import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DE
 import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURES;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +23,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import org.eclipse.core.internal.resources.LinkDescription;
+import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.internal.utils.FileUtil;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -30,9 +33,11 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.Dialog;
@@ -42,10 +47,19 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.ltk.internal.ui.refactoring.RefactoringWizardDialog2;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 import org.eclipse.ltk.ui.refactoring.resource.DeleteResourcesWizard;
+import org.eclipse.pde.core.IBaseModel;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.IIdentifiable;
+import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.ModelEntry;
 import org.eclipse.pde.internal.core.FeatureModelManager;
+import org.eclipse.pde.internal.core.IFeatureModelDelta;
+import org.eclipse.pde.internal.core.IFeatureModelListener;
+import org.eclipse.pde.internal.core.IPluginModelListener;
+import org.eclipse.pde.internal.core.PluginModelDelta;
+import org.eclipse.pde.internal.core.PluginModelManager;
+import org.eclipse.pde.internal.core.bundle.BundlePluginBase;
 import org.eclipse.pde.internal.core.feature.FeaturePlugin;
 import org.eclipse.pde.internal.core.ifeature.IFeature;
 import org.eclipse.pde.internal.core.ifeature.IFeatureChild;
@@ -56,9 +70,12 @@ import org.eclipse.pde.internal.core.iproduct.IProductFeature;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.util.CoreUtility;
 import org.eclipse.pde.internal.core.util.IdUtil;
+import org.eclipse.pde.internal.ui.util.ModelModification;
+import org.eclipse.pde.internal.ui.util.PDEModelUtility;
 import org.eclipse.swt.widgets.Shell;
 
 import uk.org.secondfiddle.pep.features.refactor.RenameFeatureWizard;
+import uk.org.secondfiddle.pep.features.refactor.RenamePluginWizard;
 import uk.org.secondfiddle.pep.features.refactor.RenameProductWizard;
 
 @SuppressWarnings("restriction")
@@ -282,6 +299,17 @@ public class RefactoringSupport {
 		return null;
 	}
 
+	public static void renamePlugin(IPluginModelBase pluginModel, Shell shell) {
+		RenamePluginWizard wizard = new RenamePluginWizard(pluginModel);
+		Dialog dialog = new RefactoringWizardDialog2(shell, wizard);
+		dialog.open();
+	}
+
+	public static String validateRenamePlugin(IPluginModelBase pluginModel, String name) {
+		IProject project = getProject(pluginModel);
+		return validateRenameProject(project, name);
+	}
+
 	public static void renameFeature(IFeatureModel featureModel, Shell shell) {
 		RenameFeatureWizard wizard = new RenameFeatureWizard(featureModel);
 		Dialog dialog = new RefactoringWizardDialog2(shell, wizard);
@@ -327,8 +355,146 @@ public class RefactoringSupport {
 		return null;
 	}
 
+	public static void renamePlugin(final IPluginModelBase pluginModel, final String newName) {
+		/*
+		 * Wait until the plugin model has been updated post-project-rename so
+		 * that it isn't stale.
+		 */
+		final PluginModelManager modelManager = PluginSupport.getManager();
+		modelManager.addPluginModelListener(new IPluginModelListener() {
+			@Override
+			public void modelsChanged(PluginModelDelta delta) {
+				IPluginModelBase replacement = getReplacement(delta, pluginModel);
+				if (replacement != null) {
+					internalRenamePlugin(replacement, newName);
+					modelManager.removePluginModelListener(this);
+				}
+			}
+		});
+
+		IProject project = getProject(pluginModel);
+		renameProject(project, newName);
+	}
+
+	private static IPluginModelBase getReplacement(PluginModelDelta delta, IPluginModelBase pluginModel) {
+		boolean foundRemoved = false;
+		for (ModelEntry removed : delta.getRemovedEntries()) {
+			if (removed.getId().equals(pluginModel.getPluginBase().getId())) {
+				foundRemoved = true;
+			}
+		}
+
+		if (foundRemoved) {
+			for (ModelEntry added : delta.getAddedEntries()) {
+				if (added.getId().equals(pluginModel.getPluginBase().getId())) {
+					return added.getModel();
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static void internalRenamePlugin(final IPluginModelBase pluginModel, final String newName) {
+		Job renamePluginJob = new WorkspaceJob("Renaming Plugin") {
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+				// rename plugin
+				setPluginId(pluginModel, newName);
+
+				// update references
+				String oldName = pluginModel.getPluginBase().getId();
+				updatePluginReferences(oldName, newName);
+
+				return Status.OK_STATUS;
+			}
+		};
+		renamePluginJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		renamePluginJob.schedule();
+	}
+
+	private static void setPluginId(IPluginModelBase pluginModel, final String newName) {
+		PDEModelUtility.modifyModel(new ModelModification(getProject(pluginModel)) {
+			@Override
+			protected void modifyModel(IBaseModel model, IProgressMonitor monitor) throws CoreException {
+				IPluginModelBase modelBase = (IPluginModelBase) model;
+				modelBase.getPluginBase().setId(newName);
+			}
+		}, new NullProgressMonitor());
+	}
+
+	private static void setPluginImportId(final IPluginImport importToModify, final String newName) {
+		PDEModelUtility.modifyModel(new ModelModification(getProject(importToModify.getPluginModel())) {
+			@Override
+			protected void modifyModel(IBaseModel model, IProgressMonitor monitor) throws CoreException {
+				IPluginModelBase modelBase = (IPluginModelBase) model;
+				if (!(modelBase.getPluginBase() instanceof BundlePluginBase)) {
+					return;
+				}
+
+				BundlePluginBase bundlePluginBase = (BundlePluginBase) modelBase.getPluginBase();
+				int index = 0;
+
+				for (IPluginImport pluginImport : bundlePluginBase.getImports()) {
+					if (pluginImport.getId().equals(importToModify.getId())) {
+						IPluginImport replacement = modelBase.getPluginFactory().createImport();
+						replacement.setId(newName);
+						replacement.setMatch(pluginImport.getMatch());
+						replacement.setOptional(pluginImport.isOptional());
+						replacement.setReexported(pluginImport.isReexported());
+						replacement.setVersion(pluginImport.getVersion());
+						bundlePluginBase.remove(pluginImport);
+						bundlePluginBase.add(replacement, index);
+						break;
+					}
+					index++;
+				}
+			}
+		}, new NullProgressMonitor());
+	}
+
 	public static void renameFeature(final IFeatureModel featureModel, final String newName) {
-		Job job = new WorkspaceJob("Renaming Feature") {
+		/*
+		 * Wait until the feature model has been updated post-project-rename so
+		 * that it isn't stale.
+		 */
+		final FeatureModelManager modelManager = FeatureSupport.getManager();
+		modelManager.addFeatureModelListener(new IFeatureModelListener() {
+			@Override
+			public void modelsChanged(IFeatureModelDelta delta) {
+				IFeatureModel replacement = getReplacement(delta, featureModel);
+				if (replacement != null) {
+					internalRenameFeature(replacement, newName);
+					modelManager.removeFeatureModelListener(this);
+				}
+			}
+		});
+
+		IProject project = getProject(featureModel);
+		renameProject(project, newName);
+	}
+
+	private static IFeatureModel getReplacement(IFeatureModelDelta delta, IFeatureModel featureModel) {
+		boolean foundRemoved = false;
+		for (IFeatureModel removed : delta.getRemoved()) {
+			if (removed.getFeature().getId().equals(featureModel.getFeature().getId())) {
+				foundRemoved = true;
+			}
+		}
+
+		if (foundRemoved) {
+			for (IFeatureModel added : delta.getAdded()) {
+				if (added.getFeature().getId().equals(featureModel.getFeature().getId())) {
+					return added;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static void internalRenameFeature(final IFeatureModel featureModel, final String newName) {
+		Job renameFeatureJob = new WorkspaceJob("Renaming Feature") {
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
 				// update references
@@ -339,8 +505,21 @@ public class RefactoringSupport {
 				featureModel.getFeature().setId(newName);
 				((IEditableModel) featureModel).save();
 
-				IProject project = getProject(featureModel);
+				return Status.OK_STATUS;
+			}
+		};
+		renameFeatureJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		renameFeatureJob.schedule();
+	}
+
+	private static void renameProject(final IProject project, final String newName) {
+		Job renameProjectJob = new WorkspaceJob("Renaming Project") {
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
 				IPath newLocation = getNewLocation(project, newName);
+
+				// update linked resources
+				updateLinkedResources(project, newName);
 
 				// rename/move project
 				IProjectDescription description = project.getDescription();
@@ -350,13 +529,35 @@ public class RefactoringSupport {
 					description.setLocation(newLocation);
 				}
 
-				project.move(description, false, monitor);
+				project.move(description, IResource.FORCE | IResource.SHALLOW, monitor);
 
 				return Status.OK_STATUS;
 			}
 		};
-		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
-		job.schedule();
+		renameProjectJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		renameProjectJob.schedule();
+	}
+
+	private static void updateLinkedResources(final IProject project, final String newName) {
+		/*
+		 * IProject#getDescription() returns a clone of the ProjectDescription
+		 * which is missing some components, such as linked resources.
+		 */
+		Project projectImpl = ((Project) project);
+		Map<IPath, LinkDescription> links = projectImpl.internalGetDescription().getLinks();
+		if (links == null) {
+			return;
+		}
+
+		try {
+			for (LinkDescription link : links.values()) {
+				String oldLinkLocation = link.getLocationURI().toString();
+				String newLinkLocation = oldLinkLocation.replace(project.getName(), newName);
+				link.setLocationURI(new URI(newLinkLocation));
+			}
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static boolean deleteFeaturesOrReferences(Collection<IIdentifiable> features, Shell shell) {
@@ -539,20 +740,50 @@ public class RefactoringSupport {
 		return true;
 	}
 
-	private static void updateFeatureReferences(String oldName, String newName) throws CoreException {
+	private static void updatePluginReferences(String oldName, String newName) throws CoreException {
+		PluginModelManager pluginModelManager = PluginSupport.getManager();
+		for (IPluginModelBase workspaceModel : pluginModelManager.getWorkspaceModels()) {
+			for (IPluginImport pluginImport : workspaceModel.getPluginBase().getImports()) {
+				if (pluginImport.getId().equals(oldName)) {
+					setPluginImportId(pluginImport, newName);
+					break;
+				}
+			}
+		}
+
 		FeatureModelManager featureModelManager = FeatureSupport.getManager();
 		for (IFeatureModel workspaceModel : featureModelManager.getWorkspaceModels()) {
-			for (IFeatureChild includedFeature : workspaceModel.getFeature().getIncludedFeatures()) {
-				if (includedFeature.getId().equals(oldName) && workspaceModel instanceof IEditableModel) {
-					includedFeature.setId(newName);
+			if (!(workspaceModel instanceof IEditableModel)) {
+				continue;
+			}
+			for (IFeaturePlugin featurePlugin : workspaceModel.getFeature().getPlugins()) {
+				if (featurePlugin.getId().equals(oldName)) {
+					featurePlugin.setId(newName);
 					((IEditableModel) workspaceModel).save();
+					break;
 				}
 			}
 		}
 	}
 
-	private static IProject getProject(IFeatureModel featureModel) {
-		IResource resource = (IResource) featureModel.getAdapter(IResource.class);
+	private static void updateFeatureReferences(String oldName, String newName) throws CoreException {
+		FeatureModelManager featureModelManager = FeatureSupport.getManager();
+		for (IFeatureModel workspaceModel : featureModelManager.getWorkspaceModels()) {
+			if (!(workspaceModel instanceof IEditableModel)) {
+				continue;
+			}
+			for (IFeatureChild includedFeature : workspaceModel.getFeature().getIncludedFeatures()) {
+				if (includedFeature.getId().equals(oldName)) {
+					includedFeature.setId(newName);
+					((IEditableModel) workspaceModel).save();
+					break;
+				}
+			}
+		}
+	}
+
+	private static IProject getProject(IAdaptable adaptable) {
+		IResource resource = (IResource) adaptable.getAdapter(IResource.class);
 		if (resource instanceof IProject) {
 			return (IProject) resource;
 		} else {
