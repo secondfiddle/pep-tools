@@ -773,7 +773,11 @@ public class RefactoringSupport {
 			if (!(workspaceModel instanceof IEditableModel)) {
 				continue;
 			}
-			for (IFeaturePlugin featurePlugin : workspaceModel.getFeature().getPlugins()) {
+			IFeature feature = workspaceModel.getFeature();
+			if (feature.getPlugin() != null && feature.getPlugin().equals(oldName)) {
+				feature.setPlugin(newName);
+			}
+			for (IFeaturePlugin featurePlugin : feature.getPlugins()) {
 				if (featurePlugin.getId().equals(oldName)) {
 					featurePlugin.setId(newName);
 					((IEditableModel) workspaceModel).save();
