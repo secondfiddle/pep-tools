@@ -184,25 +184,12 @@ public class RefactoringSupport {
 	}
 
 	public static void removeIncludedFeatures(final IFeatureModel parentModel,
-			final Collection<IFeatureModel> featureModelsToRemove) {
+			final Collection<IFeatureChild> featuresToRemove) {
 		SafeRunnable.run(new SafeRunnable() {
 			@Override
 			public void run() throws Exception {
 				IFeature feature = parentModel.getFeature();
-
-				Collection<String> featureModelIdsToRemove = new HashSet<String>();
-				for (IFeatureModel featureModelToRemove : featureModelsToRemove) {
-					featureModelIdsToRemove.add(featureModelToRemove.getFeature().getId());
-				}
-
-				Collection<IFeatureChild> removals = new ArrayList<IFeatureChild>();
-				for (IFeatureChild child : feature.getIncludedFeatures()) {
-					if (featureModelIdsToRemove.contains(child.getId())) {
-						removals.add(child);
-					}
-				}
-
-				feature.removeIncludedFeatures(removals.toArray(new IFeatureChild[removals.size()]));
+				feature.removeIncludedFeatures(featuresToRemove.toArray(new IFeatureChild[featuresToRemove.size()]));
 				((IEditableModel) parentModel).save();
 			}
 		});
@@ -634,22 +621,21 @@ public class RefactoringSupport {
 	}
 
 	private static void removeReferences(Collection<IFeatureChild> featureChildren) {
-		Map<IFeatureModel, Collection<IFeatureModel>> references = new HashMap<IFeatureModel, Collection<IFeatureModel>>();
+		Map<IFeatureModel, Collection<IFeatureChild>> references = new HashMap<IFeatureModel, Collection<IFeatureChild>>();
 
 		for (IFeatureChild featureChild : featureChildren) {
 			IFeatureModel parentModel = FeatureSupport.toEditableFeatureModel(featureChild.getParent());
-			IFeatureModel childModel = FeatureSupport.toFeatureModel(featureChild);
-			if (parentModel != null && childModel != null) {
-				Collection<IFeatureModel> children = references.get(parentModel);
+			if (parentModel != null) {
+				Collection<IFeatureChild> children = references.get(parentModel);
 				if (children == null) {
-					children = new HashSet<IFeatureModel>();
+					children = new HashSet<IFeatureChild>();
 					references.put(parentModel, children);
 				}
-				children.add(childModel);
+				children.add(featureChild);
 			}
 		}
 
-		for (Entry<IFeatureModel, Collection<IFeatureModel>> entry : references.entrySet()) {
+		for (Entry<IFeatureModel, Collection<IFeatureChild>> entry : references.entrySet()) {
 			removeIncludedFeatures(entry.getKey(), entry.getValue());
 		}
 	}
