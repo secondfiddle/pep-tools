@@ -209,25 +209,12 @@ public class RefactoringSupport {
 	}
 
 	public static void removeIncludedPlugins(final IFeatureModel parentModel,
-			final Collection<IPluginModelBase> pluginModelsToRemove) {
+			final Collection<IFeaturePlugin> pluginsToRemove) {
 		SafeRunnable.run(new SafeRunnable() {
 			@Override
 			public void run() throws Exception {
 				IFeature feature = parentModel.getFeature();
-
-				Collection<String> pluginModelIdsToRemove = new HashSet<String>();
-				for (IPluginModelBase pluginModelToRemove : pluginModelsToRemove) {
-					pluginModelIdsToRemove.add(pluginModelToRemove.getPluginBase().getId());
-				}
-
-				Collection<IFeaturePlugin> removals = new ArrayList<IFeaturePlugin>();
-				for (IFeaturePlugin plugin : feature.getPlugins()) {
-					if (pluginModelIdsToRemove.contains(plugin.getId())) {
-						removals.add(plugin);
-					}
-				}
-
-				feature.removePlugins(removals.toArray(new IFeaturePlugin[removals.size()]));
+				feature.removePlugins(pluginsToRemove.toArray(new IFeaturePlugin[pluginsToRemove.size()]));
 				((IEditableModel) parentModel).save();
 			}
 		});
@@ -602,23 +589,22 @@ public class RefactoringSupport {
 		return true;
 	}
 
-	public static void deletePluginReferences(Collection<IFeaturePlugin> featurePlugins) {
-		Map<IFeatureModel, Collection<IPluginModelBase>> references = new HashMap<IFeatureModel, Collection<IPluginModelBase>>();
+	public static void deletePluginReferences(Collection<IFeaturePlugin> featurePluginsToDelete) {
+		Map<IFeatureModel, Collection<IFeaturePlugin>> references = new HashMap<IFeatureModel, Collection<IFeaturePlugin>>();
 
-		for (IFeaturePlugin featurePlugin : featurePlugins) {
+		for (IFeaturePlugin featurePlugin : featurePluginsToDelete) {
 			IFeatureModel parentModel = FeatureSupport.toEditableFeatureModel(featurePlugin.getParent());
-			IPluginModelBase pluginModel = PluginSupport.toPluginModel(featurePlugin);
-			if (parentModel != null && pluginModel != null) {
-				Collection<IPluginModelBase> pluginModels = references.get(parentModel);
-				if (pluginModels == null) {
-					pluginModels = new HashSet<IPluginModelBase>();
-					references.put(parentModel, pluginModels);
+			if (parentModel != null) {
+				Collection<IFeaturePlugin> featurePlugins = references.get(parentModel);
+				if (featurePlugins == null) {
+					featurePlugins = new HashSet<IFeaturePlugin>();
+					references.put(parentModel, featurePlugins);
 				}
-				pluginModels.add(pluginModel);
+				featurePlugins.add(featurePlugin);
 			}
 		}
 
-		for (Entry<IFeatureModel, Collection<IPluginModelBase>> entry : references.entrySet()) {
+		for (Entry<IFeatureModel, Collection<IFeaturePlugin>> entry : references.entrySet()) {
 			removeIncludedPlugins(entry.getKey(), entry.getValue());
 		}
 	}
