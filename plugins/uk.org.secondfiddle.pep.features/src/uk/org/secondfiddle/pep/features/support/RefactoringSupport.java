@@ -50,6 +50,7 @@ import org.eclipse.ltk.ui.refactoring.resource.DeleteResourcesWizard;
 import org.eclipse.pde.core.IBaseModel;
 import org.eclipse.pde.core.IEditableModel;
 import org.eclipse.pde.core.IIdentifiable;
+import org.eclipse.pde.core.plugin.IFragmentModel;
 import org.eclipse.pde.core.plugin.IPluginImport;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.ModelEntry;
@@ -423,6 +424,16 @@ public class RefactoringSupport {
 		}, new NullProgressMonitor());
 	}
 
+	private static void setFragmentHostId(IFragmentModel fragmentModel, final String newName) {
+		PDEModelUtility.modifyModel(new ModelModification(getProject(fragmentModel)) {
+			@Override
+			protected void modifyModel(IBaseModel model, IProgressMonitor monitor) throws CoreException {
+				IFragmentModel fragmentModel = (IFragmentModel) model;
+				fragmentModel.getFragment().setPluginId(newName);
+			}
+		}, new NullProgressMonitor());
+	}
+
 	private static void setPluginImportId(final IPluginImport importToModify, final String newName) {
 		PDEModelUtility.modifyModel(new ModelModification(getProject(importToModify.getPluginModel())) {
 			@Override
@@ -743,6 +754,12 @@ public class RefactoringSupport {
 	private static void updatePluginReferences(String oldName, String newName) throws CoreException {
 		PluginModelManager pluginModelManager = PluginSupport.getManager();
 		for (IPluginModelBase workspaceModel : pluginModelManager.getWorkspaceModels()) {
+			if (workspaceModel.isFragmentModel()) {
+				IFragmentModel fragmentModel = (IFragmentModel) workspaceModel;
+				if (fragmentModel.getFragment().getPluginId().equals(oldName)) {
+					setFragmentHostId(fragmentModel, newName);
+				}
+			}
 			for (IPluginImport pluginImport : workspaceModel.getPluginBase().getImports()) {
 				if (pluginImport.getId().equals(oldName)) {
 					setPluginImportId(pluginImport, newName);
