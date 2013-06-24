@@ -15,7 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.PluginRegistry;
 import org.eclipse.pde.internal.core.FeatureModelManager;
@@ -31,9 +31,11 @@ import org.eclipse.pde.internal.core.iproduct.IProductFeature;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.iproduct.IProductPlugin;
 import org.eclipse.pde.internal.launching.launcher.LaunchValidationOperation;
-import org.eclipse.pde.internal.launching.launcher.ProductValidationOperation;
 import org.eclipse.pde.internal.ui.PDEPlugin;
 import org.eclipse.pde.internal.ui.editor.product.ProductValidateAction;
+
+import uk.org.secondfiddle.pep.products.impl.DummyProductLaunchConfiguration;
+import uk.org.secondfiddle.pep.products.impl.ProductEclipsePluginValidationOperation;
 
 /**
  * Part of this class is adapted from {@link ProductValidateAction}.
@@ -86,7 +88,7 @@ public class ProductValidator {
 
 	@SuppressWarnings("unchecked")
 	private static void extendedValidation(IProduct product, Collection<String> errorMessages) {
-		HashMap<String, IPluginModelBase> pluginModels = new HashMap<String, IPluginModelBase>();
+		Map<String, IPluginModelBase> pluginModels = new HashMap<String, IPluginModelBase>();
 
 		if (product.useFeatures()) {
 			IFeatureModel[] features = getUniqueFeatures(product.getFeatures());
@@ -108,9 +110,9 @@ public class ProductValidator {
 		}
 
 		try {
-			IPluginModelBase[] models = (IPluginModelBase[]) pluginModels.values().toArray(
-					new IPluginModelBase[pluginModels.size()]);
-			LaunchValidationOperation operation = new ProductValidationOperation(models);
+			ILaunchConfiguration configuration = new DummyProductLaunchConfiguration(product);
+			LaunchValidationOperation operation = new ProductEclipsePluginValidationOperation(configuration,
+					pluginModels.values());
 			operation.run(new NullProgressMonitor());
 			if (operation.hasErrors()) {
 				fillErrorMessageList(operation.getInput(), errorMessages);
@@ -121,9 +123,13 @@ public class ProductValidator {
 		}
 	}
 
-	private static void fillErrorMessageList(Map<BundleDescription, Object[]> errors, Collection<String> errorMessages) {
+	private static void fillErrorMessageList(Map<Object, Object[]> errors, Collection<String> errorMessages) {
 		Map<String, Collection<String>> affectedBundlesByCause = new TreeMap<String, Collection<String>>();
-		for (Entry<BundleDescription, Object[]> entry : errors.entrySet()) {
+		for (Entry<Object, Object[]> entry : errors.entrySet()) {
+			if (entry.getValue().length == 0) {
+				errorMessages.add(entry.getKey().toString());
+				continue;
+			}
 			for (Object cause : entry.getValue()) {
 				String causeMessage = cause.toString();
 				Collection<String> affectedBundles = affectedBundlesByCause.get(causeMessage);
@@ -131,7 +137,7 @@ public class ProductValidator {
 					affectedBundles = new TreeSet<String>();
 					affectedBundlesByCause.put(causeMessage, affectedBundles);
 				}
-				affectedBundles.add(entry.getKey().getSymbolicName());
+				affectedBundles.add(entry.getKey().toString());
 			}
 		}
 
