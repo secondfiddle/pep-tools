@@ -25,13 +25,13 @@
          point="org.eclipse.ui.popupMenus">
       <objectContribution
             adaptable="true"
-            id="uk.org.secondfiddle.pep.products.ProductNatureAddAction"
+            id="uk.org.secondfiddle.pep.products.ProductNatureAddActionDelegate"
             nameFilter="*.product"
             objectClass="org.eclipse.core.resources.IFile">
          <action
-               class="uk.org.secondfiddle.pep.products.ui.ProductNatureAddAction"
+               class="uk.org.secondfiddle.pep.products.ui.ProductNatureAddActionDelegate"
                enablesFor="1"
-               id="uk.org.secondfiddle.pep.products.ProductNatureAddAction"
+               id="uk.org.secondfiddle.pep.products.ProductNatureAddActionDelegate"
                label="Add Product Nature"
                menubarPath="secondfiddle">
             <enablement>

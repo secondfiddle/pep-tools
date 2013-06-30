@@ -64,6 +64,7 @@ import uk.org.secondfiddle.pep.features.viewer.FeatureTreeDropSupport;
 import uk.org.secondfiddle.pep.features.viewer.FeatureTreeLabelProvider;
 import uk.org.secondfiddle.pep.features.viewer.RootElementsFilteredTree;
 import uk.org.secondfiddle.pep.products.model.ProductModelManager;
+import uk.org.secondfiddle.pep.products.ui.ProductNatureAddAction;
 
 @SuppressWarnings("restriction")
 public class FeatureExplorerView extends ViewPart implements ConfigurableViewer {
@@ -280,7 +281,6 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 		manager.add(new Separator());
 		manager.add(renameAction);
-		manager.add(new Separator());
 
 		Collection<?> selection = getViewerSelection();
 		deleteAction.setText("Delete...");
@@ -291,6 +291,12 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		}
 
 		manager.add(deleteAction);
+
+		Collection<IProductModel> productModels = getSelectedProductModels();
+		if (!productModels.isEmpty() && productModels.size() == selection.size()) {
+			manager.add(new Separator());
+			manager.add(new ProductNatureAddAction(viewer.getSelection()));
+		}
 	}
 
 	private void registerFilterAction(ViewerFilterAction filterAction) {
