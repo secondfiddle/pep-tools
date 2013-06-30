@@ -34,6 +34,7 @@ import org.eclipse.pde.internal.ui.editor.feature.FeatureEditor;
 import org.eclipse.pde.internal.ui.editor.plugin.ManifestEditor;
 import org.eclipse.pde.internal.ui.views.dependencies.OpenPluginDependenciesAction;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
@@ -46,6 +47,8 @@ import org.eclipse.ui.part.ViewPart;
 
 import uk.org.secondfiddle.pep.features.action.CollapseAllAction;
 import uk.org.secondfiddle.pep.features.action.ContentProviderAction;
+import uk.org.secondfiddle.pep.features.action.FeatureAndPluginCopyAction;
+import uk.org.secondfiddle.pep.features.action.FeatureAndPluginPasteAction;
 import uk.org.secondfiddle.pep.features.action.FilterFeatureChildAction;
 import uk.org.secondfiddle.pep.features.action.ShowCalleesContentProviderAction;
 import uk.org.secondfiddle.pep.features.action.ShowCallersContentProviderAction;
@@ -69,20 +72,20 @@ import uk.org.secondfiddle.pep.products.ui.ProductNatureAddAction;
 @SuppressWarnings("restriction")
 public class FeatureExplorerView extends ViewPart implements ConfigurableViewer {
 
-	private Action openAction = new Action("Open") {
+	private final Action openAction = new Action("Open") {
 		@Override
 		public void run() {
 			handleOpen();
 		}
 	};
 
-	private Action renameAction = new Action("Rename...") {
+	private final Action renameAction = new Action("Rename...") {
 		public void run() {
 			handleRename();
 		}
 	};
 
-	private Action deleteAction = new Action("Delete") {
+	private final Action deleteAction = new Action("Delete") {
 		@Override
 		public void run() {
 			handleDelete();
@@ -99,6 +102,12 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private TreeViewer viewer;
 
+	private Clipboard clipboard;
+
+	private Action copyAction;
+
+	private FeatureAndPluginPasteAction pasteAction;
+
 	private FeatureIndex featureIndex;
 
 	@Override
@@ -112,6 +121,10 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		this.viewer = filteredTree.getViewer();
 		this.patternFilter = filteredTree.getPatternFilter();
 		this.viewerFilters.add(patternFilter);
+
+		this.clipboard = new Clipboard(parent.getDisplay());
+		this.copyAction = new FeatureAndPluginCopyAction(viewer, clipboard);
+		this.pasteAction = new FeatureAndPluginPasteAction(viewer, clipboard);
 
 		registerGlobalActions();
 		contributeToActionBar(featureModelManager, productModelManager);
@@ -129,6 +142,7 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 	public void dispose() {
 		super.dispose();
 		featureIndex.dispose();
+		clipboard.dispose();
 	}
 
 	private FilteredTree createFilteredTree(Composite parent) {
@@ -159,6 +173,8 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 			public void selectionChanged(SelectionChangedEvent event) {
 				Collection<?> selection = getViewerSelection();
 				openAction.setEnabled(!selection.isEmpty());
+				copyAction.setEnabled(!selection.isEmpty());
+				pasteAction.revalidate();
 				renameAction.setEnabled(selection.size() == 1);
 				deleteAction.setEnabled(!selection.isEmpty());
 			}
@@ -222,6 +238,8 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		IActionBars actionBars = getViewSite().getActionBars();
 		actionBars.setGlobalActionHandler(ActionFactory.RENAME.getId(), renameAction);
 		actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(), deleteAction);
+		actionBars.setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
+		actionBars.setGlobalActionHandler(ActionFactory.PASTE.getId(), pasteAction);
 	}
 
 	private void contributeToActionBar(FeatureModelManager featureModelManager, ProductModelManager productModelManager) {
@@ -278,6 +296,10 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 			dependenciesAction.setText(PDEUIMessages.PluginsView_openDependencies);
 			dependenciesAction.setImageDescriptor(PDEPluginImages.DESC_CALLEES);
 		}
+
+		manager.add(new Separator());
+		manager.add(copyAction);
+		manager.add(pasteAction);
 
 		manager.add(new Separator());
 		manager.add(renameAction);

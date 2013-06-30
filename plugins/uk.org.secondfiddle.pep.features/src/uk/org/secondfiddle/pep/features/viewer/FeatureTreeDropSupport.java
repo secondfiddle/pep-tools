@@ -24,56 +24,67 @@ public class FeatureTreeDropSupport extends ViewerDropAdapter {
 	}
 
 	@Override
-	public boolean performDrop(Object data) {
-		IFeatureModel featureTarget = getValidFeatureTarget();
-		if (featureTarget != null) {
-			Collection<IFeatureModel> featureSources = getValidFeatureSources(data);
-			featureSources.remove(featureTarget);
-			RefactoringSupport.addIncludedFeatures(featureTarget, featureSources);
+	public boolean validateDrop(Object target, int operation, TransferData transferType) {
+		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
+		return validateDrop(selection, getCurrentTarget());
+	}
 
-			Collection<IPluginModelBase> pluginSources = getValidPluginSources(data);
-			RefactoringSupport.addIncludedPlugins(featureTarget, pluginSources);
+	@Override
+	public boolean performDrop(Object data) {
+		return performDrop((ISelection) data, getCurrentTarget());
+	}
+
+	private static IFeatureModel getValidFeatureTarget(Object target) {
+		return FeatureSupport.toEditableFeatureModel(target);
+	}
+
+	private static IProductModel getValidProductTarget(Object target) {
+		return ProductSupport.toEditableProductModel(target);
+	}
+
+	private static Collection<IFeatureModel> getValidFeatureSources(Object data) {
+		return FeatureSupport.toFeatureModels(data);
+	}
+
+	private static Collection<IPluginModelBase> getValidPluginSources(Object data) {
+		return PluginSupport.toPluginModels(data);
+	}
+
+	public static boolean validateDrop(ISelection source, Object target) {
+		if (getValidFeatureTarget(target) != null) {
+			boolean features = !getValidFeatureSources(source).isEmpty();
+			boolean plugins = !getValidPluginSources(source).isEmpty();
+			return features || plugins;
 		}
 
-		IProductModel productTarget = getValidProductTarget();
-		if (productTarget != null) {
-			Collection<IFeatureModel> featureSources = getValidFeatureSources(data);
-			RefactoringSupport.addProductFeatures(productTarget, featureSources);
+		if (getValidProductTarget(target) != null) {
+			boolean features = !getValidFeatureSources(source).isEmpty();
+			boolean plugins = !getValidPluginSources(source).isEmpty();
+			return features && !plugins;
 		}
 
 		return false;
 	}
 
-	private IFeatureModel getValidFeatureTarget() {
-		return FeatureSupport.toEditableFeatureModel(getCurrentTarget());
-	}
+	public static boolean performDrop(ISelection source, Object target) {
+		IFeatureModel featureTarget = getValidFeatureTarget(target);
+		if (featureTarget != null) {
+			Collection<IFeatureModel> featureSources = getValidFeatureSources(source);
+			featureSources.remove(featureTarget);
+			RefactoringSupport.addIncludedFeatures(featureTarget, featureSources);
 
-	private IProductModel getValidProductTarget() {
-		return ProductSupport.toEditableProductModel(getCurrentTarget());
-	}
+			Collection<IPluginModelBase> pluginSources = getValidPluginSources(source);
+			RefactoringSupport.addIncludedPlugins(featureTarget, pluginSources);
 
-	private Collection<IFeatureModel> getValidFeatureSources(Object data) {
-		return FeatureSupport.toFeatureModels(data);
-	}
-
-	private Collection<IPluginModelBase> getValidPluginSources(Object data) {
-		return PluginSupport.toPluginModels(data);
-	}
-
-	@Override
-	public boolean validateDrop(Object target, int operation, TransferData transferType) {
-		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-
-		if (getValidFeatureTarget() != null) {
-			boolean features = !getValidFeatureSources(selection).isEmpty();
-			boolean plugins = !getValidPluginSources(selection).isEmpty();
-			return features || plugins;
+			return true;
 		}
 
-		if (getValidProductTarget() != null) {
-			boolean features = !getValidFeatureSources(selection).isEmpty();
-			boolean plugins = !getValidPluginSources(selection).isEmpty();
-			return features && !plugins;
+		IProductModel productTarget = getValidProductTarget(target);
+		if (productTarget != null) {
+			Collection<IFeatureModel> featureSources = getValidFeatureSources(source);
+			RefactoringSupport.addProductFeatures(productTarget, featureSources);
+
+			return true;
 		}
 
 		return false;
