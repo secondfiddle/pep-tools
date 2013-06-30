@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
+import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TransferData;
 
 import uk.org.secondfiddle.pep.features.support.FeatureSupport;
@@ -26,7 +27,12 @@ public class FeatureTreeDropSupport extends ViewerDropAdapter {
 	@Override
 	public boolean validateDrop(Object target, int operation, TransferData transferType) {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-		return validateDrop(selection, getCurrentTarget());
+		if (validateDrop(selection, getCurrentTarget())) {
+			overrideOperation(DND.DROP_COPY);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override

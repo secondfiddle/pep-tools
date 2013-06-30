@@ -156,9 +156,9 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		viewer.setComparer(new FeatureElementComparer());
 		viewer.setLabelProvider(new FeatureTreeLabelProvider());
 
-		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] { LocalSelectionTransfer.getTransfer() },
+		viewer.addDragSupport(DND.DROP_COPY, new Transfer[] { LocalSelectionTransfer.getTransfer() },
 				new FeatureTreeDragSupport(viewer));
-		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] { LocalSelectionTransfer.getTransfer() },
+		viewer.addDropSupport(DND.DROP_COPY, new Transfer[] { LocalSelectionTransfer.getTransfer() },
 				new FeatureTreeDropSupport(viewer));
 
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
