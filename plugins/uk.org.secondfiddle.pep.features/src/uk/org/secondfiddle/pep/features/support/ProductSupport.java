@@ -69,6 +69,24 @@ public class ProductSupport {
 		return toProductModel(firstElement);
 	}
 
+	public static Collection<IProductModel> toProductModels(ISelection selection) {
+		if (!(selection instanceof IStructuredSelection)) {
+			return null;
+		}
+
+		IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+		Collection<IProductModel> productModels = new ArrayList<IProductModel>();
+
+		for (Object selectedItem : structuredSelection.toList()) {
+			IProductModel productModel = toProductModel(selectedItem);
+			if (productModel != null) {
+				productModels.add(productModel);
+			}
+		}
+
+		return productModels;
+	}
+
 	public static IProductModel toProductModel(Object obj) {
 		if (obj instanceof IProduct) {
 			IProduct product = (IProduct) obj;

@@ -2,14 +2,22 @@ package uk.org.secondfiddle.pep.features;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -20,12 +28,16 @@ import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import org.eclipse.pde.internal.core.ifeature.IFeaturePlugin;
 import org.eclipse.pde.internal.core.iproduct.IProductFeature;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
+import org.eclipse.pde.internal.ui.PDEPluginImages;
+import org.eclipse.pde.internal.ui.PDEUIMessages;
 import org.eclipse.pde.internal.ui.editor.feature.FeatureEditor;
 import org.eclipse.pde.internal.ui.editor.plugin.ManifestEditor;
+import org.eclipse.pde.internal.ui.views.dependencies.OpenPluginDependenciesAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.FilteredTree;
@@ -56,6 +68,26 @@ import uk.org.secondfiddle.pep.products.model.ProductModelManager;
 @SuppressWarnings("restriction")
 public class FeatureExplorerView extends ViewPart implements ConfigurableViewer {
 
+	private Action openAction = new Action("Open") {
+		@Override
+		public void run() {
+			handleOpen();
+		}
+	};
+
+	private Action renameAction = new Action("Rename...") {
+		public void run() {
+			handleRename();
+		}
+	};
+
+	private Action deleteAction = new Action("Delete") {
+		@Override
+		public void run() {
+			handleDelete();
+		}
+	};
+
 	private final Collection<ViewerFilterAction> viewerFilterActions = new ArrayList<ViewerFilterAction>();
 
 	private final Collection<ViewerFilter> viewerFilters = new ArrayList<ViewerFilter>();
@@ -82,6 +114,7 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 		registerGlobalActions();
 		contributeToActionBar(featureModelManager, productModelManager);
+		hookContextMenu();
 
 		initialiseViewer(input);
 	}
@@ -116,7 +149,17 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
-				handleDoubleClick();
+				handleOpen();
+			}
+		});
+
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				Collection<?> selection = getViewerSelection();
+				openAction.setEnabled(!selection.isEmpty());
+				renameAction.setEnabled(selection.size() == 1);
+				deleteAction.setEnabled(!selection.isEmpty());
 			}
 		});
 
@@ -176,17 +219,8 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private void registerGlobalActions() {
 		IActionBars actionBars = getViewSite().getActionBars();
-		actionBars.setGlobalActionHandler(ActionFactory.RENAME.getId(), new Action() {
-			public void run() {
-				handleRename();
-			}
-		});
-		actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(), new Action() {
-			@Override
-			public void run() {
-				handleDelete();
-			}
-		});
+		actionBars.setGlobalActionHandler(ActionFactory.RENAME.getId(), renameAction);
+		actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(), deleteAction);
 	}
 
 	private void contributeToActionBar(FeatureModelManager featureModelManager, ProductModelManager productModelManager) {
@@ -221,6 +255,44 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		actionBars.updateActionBars();
 	}
 
+	private void hookContextMenu() {
+		MenuManager menuManager = new MenuManager();
+		menuManager.setRemoveAllWhenShown(true);
+		menuManager.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager manager) {
+				fillContextMenu(manager);
+			}
+		});
+		Menu menu = menuManager.createContextMenu(viewer.getControl());
+		viewer.getControl().setMenu(menu);
+	}
+
+	private void fillContextMenu(IMenuManager manager) {
+		manager.add(openAction);
+
+		IPluginModelBase selectedPluginModel = getSelectedPluginModel();
+		if (selectedPluginModel != null) {
+			Action dependenciesAction = new OpenPluginDependenciesAction(selectedPluginModel);
+			manager.add(dependenciesAction);
+			dependenciesAction.setText(PDEUIMessages.PluginsView_openDependencies);
+			dependenciesAction.setImageDescriptor(PDEPluginImages.DESC_CALLEES);
+		}
+
+		manager.add(new Separator());
+		manager.add(renameAction);
+		manager.add(new Separator());
+
+		Collection<?> selection = getViewerSelection();
+		deleteAction.setText("Delete...");
+		if (selection.size() > 1) {
+			deleteAction.setText("Delete / Remove Inclusions");
+		} else if (selection.size() == 1 && !canDelete(selection.iterator().next())) {
+			deleteAction.setText("Delete (Remove Inclusion)");
+		}
+
+		manager.add(deleteAction);
+	}
+
 	private void registerFilterAction(ViewerFilterAction filterAction) {
 		viewerFilterActions.add(filterAction);
 		if (!filterAction.isChecked()) {
@@ -237,22 +309,24 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 		}
 	}
 
-	private void handleDoubleClick() {
-		IFeatureModel selectedFeatureModel = getSelectedFeatureModel();
-		if (selectedFeatureModel != null) {
-			FeatureEditor.openFeatureEditor(selectedFeatureModel);
-			return;
-		}
+	private void handleOpen() {
+		for (Object selection : getViewerSelection()) {
+			IFeatureModel featureModel = FeatureSupport.toFeatureModel(selection);
+			if (featureModel != null) {
+				FeatureEditor.openFeatureEditor(featureModel);
+				continue;
+			}
 
-		IPluginModelBase selectedPluginModel = getSelectedPluginModel();
-		if (selectedPluginModel != null) {
-			ManifestEditor.openPluginEditor(selectedPluginModel);
-			return;
-		}
+			IPluginModelBase pluginModel = PluginSupport.toPluginModel(selection);
+			if (pluginModel != null) {
+				ManifestEditor.openPluginEditor(pluginModel);
+				continue;
+			}
 
-		IProductModel selectedProductModel = getSelectedProductModel();
-		if (selectedProductModel != null) {
-			ProductSupport.openProductEditor(selectedProductModel);
+			IProductModel productModel = ProductSupport.toProductModel(selection);
+			if (productModel != null) {
+				ProductSupport.openProductEditor(productModel);
+			}
 		}
 	}
 
@@ -284,7 +358,23 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 			Collection<IProductFeature> productFeatures = getSelectedProductFeatures();
 			RefactoringSupport.deleteProductFeatures(productFeatures);
+
+			Collection<IProductModel> products = getSelectedProductModels();
+			RefactoringSupport.deleteProducts(products, getSite().getShell());
 		}
+	}
+
+	private Collection<?> getViewerSelection() {
+		ISelection selection = viewer.getSelection();
+		if (selection instanceof IStructuredSelection) {
+			return ((IStructuredSelection) selection).toList();
+		} else {
+			return Collections.emptyList();
+		}
+	}
+
+	private boolean canDelete(Object selection) {
+		return (selection instanceof IProductModel || selection instanceof IFeatureModel);
 	}
 
 	private IFeatureModel getSelectedFeatureModel() {
@@ -317,6 +407,10 @@ public class FeatureExplorerView extends ViewPart implements ConfigurableViewer 
 
 	private IProductModel getSelectedProductModel() {
 		return ProductSupport.toSingleProductModel(viewer.getSelection());
+	}
+
+	private Collection<IProductModel> getSelectedProductModels() {
+		return ProductSupport.toProductModels(viewer.getSelection());
 	}
 
 	private IProductModel getSelectedEditableProductModel() {

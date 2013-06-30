@@ -9,6 +9,8 @@ import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.MESSAGE_
 import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.MESSAGE_DELETE_FEATURE_OR_REF;
 import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURE;
 import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURES;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_PRODUCT;
+import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_PRODUCTS;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -542,6 +544,38 @@ public class RefactoringSupport {
 			}
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public static boolean deleteProducts(Collection<IProductModel> productModels, Shell shell) {
+		try {
+			Collection<IResource> productResources = new HashSet<IResource>();
+			for (IProductModel productModel : productModels) {
+				IProductModel editableProductModel = ProductSupport.toEditableProductModel(productModel);
+				if (editableProductModel == null) {
+					continue;
+				}
+				IResource productResource = editableProductModel.getUnderlyingResource();
+				if (productModel != null) {
+					productResources.add(productResource);
+				}
+			}
+
+			boolean singleProduct = false;
+			if (productResources.isEmpty()) {
+				return true;
+			} else if (productResources.size() == 1) {
+				singleProduct = true;
+			}
+
+			DeleteResourcesWizard refactoringWizard = new DeleteResourcesWizard(
+					productResources.toArray(new IResource[0]));
+			RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(refactoringWizard);
+			int returnCode = op.run(shell, singleProduct ? TITLE_DELETE_PRODUCT : TITLE_DELETE_PRODUCTS);
+			return (returnCode != IDialogConstants.CANCEL_ID);
+		} catch (InterruptedException e) {
+			// cancelled
+			return false;
 		}
 	}
 

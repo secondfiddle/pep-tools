@@ -4,6 +4,10 @@ public interface FeatureExplorerConstants {
 
 	String PLUGIN_ID = "uk.org.secondfiddle.pep.features";
 
+	String TITLE_DELETE_PRODUCT = "Delete Product";
+
+	String TITLE_DELETE_PRODUCTS = "Delete Products";
+
 	String TITLE_DELETE_FEATURE = "Delete Feature";
 
 	String TITLE_DELETE_FEATURES = "Delete Features";
