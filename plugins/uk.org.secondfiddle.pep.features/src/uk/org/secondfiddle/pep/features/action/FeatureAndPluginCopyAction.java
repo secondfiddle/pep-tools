@@ -13,6 +13,7 @@ import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.internal.core.ifeature.IFeatureModel;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Event;
@@ -45,13 +46,20 @@ public class FeatureAndPluginCopyAction extends Action {
 		Collection<IPluginModelBase> pluginModels = PluginSupport.toPluginModels(selection);
 
 		Collection<IProject> projects = new HashSet<IProject>();
+		addUnderlyingResources(projects, productModels);
 		addUnderlyingResources(projects, featureModels);
 		addUnderlyingResources(projects, pluginModels);
 
+		String[] fileData = new String[projects.size()];
+		int i = 0;
+		for (IProject project : projects) {
+			fileData[i++] = project.getLocation().toOSString();
+		}
+
 		String textData = getTextData(productModels, featureModels, pluginModels);
 
-		Object[] data = { projects.toArray(new IResource[projects.size()]), textData };
-		Transfer[] dataTypes = { ResourceTransfer.getInstance(), TextTransfer.getInstance() };
+		Object[] data = { projects.toArray(new IResource[projects.size()]), textData, fileData };
+		Transfer[] dataTypes = { ResourceTransfer.getInstance(), TextTransfer.getInstance(), FileTransfer.getInstance() };
 		clipboard.setContents(data, dataTypes);
 	}
 
