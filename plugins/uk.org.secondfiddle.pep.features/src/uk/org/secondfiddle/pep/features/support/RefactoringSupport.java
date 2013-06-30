@@ -665,6 +665,7 @@ public class RefactoringSupport {
 	}
 
 	private static boolean deleteOrRemoveReference(IFeatureChild featureChild, Shell shell) {
+		int removeImportButtonIndex = 0;
 		int deleteButtonIndex = 1;
 		String featureId = featureChild.getId();
 		String parentId = featureChild.getParent().getFeature().getId();
@@ -673,7 +674,7 @@ public class RefactoringSupport {
 				LABEL_REMOVE_IMPORT, LABEL_DELETE_FEATURE, IDialogConstants.CANCEL_LABEL }, 0);
 
 		int returnCode = dialog.open();
-		if (returnCode == IDialogConstants.CANCEL_ID) {
+		if (returnCode != removeImportButtonIndex && returnCode != deleteButtonIndex) {
 			return false;
 		}
 
@@ -689,13 +690,14 @@ public class RefactoringSupport {
 	}
 
 	private static boolean deleteOrRemoveReferences(Collection<IIdentifiable> features, Shell shell) {
+		int removeImportButtonIndex = 0;
 		int deleteButtonIndex = 1;
 		Dialog dialog = new MessageDialog(shell, TITLE_DELETE_FEATURES, null, MESSAGE_DELETE_FEATURES_OR_REFS,
 				MessageDialog.QUESTION, new String[] { LABEL_REMOVE_IMPORTS, LABEL_DELETE_FEATURES,
 						IDialogConstants.CANCEL_LABEL }, 0);
 
 		int returnCode = dialog.open();
-		if (returnCode == IDialogConstants.CANCEL_ID) {
+		if (returnCode != removeImportButtonIndex && returnCode != deleteButtonIndex) {
 			return false;
 		}
 
