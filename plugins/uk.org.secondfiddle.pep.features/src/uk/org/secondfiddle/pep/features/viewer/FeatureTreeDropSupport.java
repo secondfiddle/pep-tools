@@ -22,6 +22,7 @@ public class FeatureTreeDropSupport extends ViewerDropAdapter {
 
 	public FeatureTreeDropSupport(Viewer viewer) {
 		super(viewer);
+		setFeedbackEnabled(false);
 	}
 
 	@Override
