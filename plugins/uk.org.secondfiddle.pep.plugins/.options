@@ -1,0 +1,2 @@
+# Turn on/off all debugging for the plugin
+uk.org.secondfiddle.pep.plugins/debug = false
