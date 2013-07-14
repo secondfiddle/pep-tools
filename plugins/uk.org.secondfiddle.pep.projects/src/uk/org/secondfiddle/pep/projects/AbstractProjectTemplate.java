@@ -1,12 +1,16 @@
 package uk.org.secondfiddle.pep.projects;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.jar.Manifest;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 
 public abstract class AbstractProjectTemplate implements ProjectTemplate {
 
@@ -20,16 +24,40 @@ public abstract class AbstractProjectTemplate implements ProjectTemplate {
 
 	private final String name;
 
-	private final String icon;
+	private final URL icon;
 
 	private final String location;
 
 	protected AbstractProjectTemplate(IFile templateFile) {
 		this.manifest = readManifest(templateFile);
 		this.projectName = templateFile.getProject().getName();
-		this.location = templateFile.getLocation().toString();
+		this.location = templateFile.getParent().getProjectRelativePath().toString();
 		this.name = manifest.getMainAttributes().getValue(TEMPLATE_NAME);
-		this.icon = manifest.getMainAttributes().getValue(TEMPLATE_ICON);
+		this.icon = getIconUrl(templateFile, manifest);
+	}
+
+	private URL getIconUrl(IFile templateFile, Manifest manifest) {
+		String icon = manifest.getMainAttributes().getValue(TEMPLATE_ICON);
+		URL iconUrl = null;
+
+		try {
+			IPath iconPath = templateFile.getParent().getLocation().append(icon);
+			File iconFile = iconPath.toFile();
+			if (iconFile.exists()) {
+				iconUrl = iconFile.toURI().toURL();
+			} else {
+				ProjectTemplateActivator.logError("Missing icon " + icon);
+			}
+		} catch (MalformedURLException e) {
+			ProjectTemplateActivator.logError("Missing icon " + icon, e);
+		}
+
+		return iconUrl;
+	}
+
+	@Override
+	public String getId() {
+		return location + ":" + name;
 	}
 
 	@Override
@@ -38,7 +66,7 @@ public abstract class AbstractProjectTemplate implements ProjectTemplate {
 	}
 
 	@Override
-	public String getIcon() {
+	public URL getIcon() {
 		return icon;
 	}
 

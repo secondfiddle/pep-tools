@@ -23,13 +23,6 @@
             id="projecttemplate"
             name="Project Templates">
       </category>
-      <wizard
-            category="projecttemplate"
-            class="uk.org.secondfiddle.pep.projects.ProjectTemplateWizard"
-            id="uk.org.secondfiddle.pep.projects.ProjectTemplateWizard"
-            name="Project Template Wizard"
-            project="true">
-      </wizard>
    </extension>
 
 </plugin>

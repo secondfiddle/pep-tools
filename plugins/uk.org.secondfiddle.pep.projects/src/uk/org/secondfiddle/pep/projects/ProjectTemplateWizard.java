@@ -15,6 +15,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -27,11 +29,23 @@ import org.eclipse.pde.ui.templates.TemplateOption;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
-public class ProjectTemplateWizard extends NewPluginTemplateWizard implements INewWizard {
+public class ProjectTemplateWizard extends NewPluginTemplateWizard implements INewWizard, IExecutableExtension {
+
+	public ProjectTemplateWizard() {
+		setDefaultPageImageDescriptor(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/new_wiz.png"));
+	}
+
+	@Override
+	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
+			throws CoreException {
+		System.err.println("config: " + config.getName());
+	}
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
+		System.err.println("selection here!" + selection);
 	}
 
 	@Override

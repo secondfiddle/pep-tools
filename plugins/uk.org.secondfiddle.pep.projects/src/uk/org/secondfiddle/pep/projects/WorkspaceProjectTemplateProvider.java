@@ -22,8 +22,6 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 
 	private static final String TEMPLATE_MANIFEST = "template.mf";
 
-	private static final String WORKSPACE_TEMPLATES_KEY = "workspaceTemplates";
-
 	private final Map<String, Collection<ProjectTemplate>> templates = new HashMap<String, Collection<ProjectTemplate>>();
 
 	private final ProjectTemplateProviderListener listener;
@@ -71,6 +69,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 			for (ProjectTemplate template : projectTemplates) {
 				if (template.getLocation().equals(location)) {
 					removeTemplate(template);
+					return;
 				}
 			}
 		}
@@ -160,8 +159,11 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 	}
 
 	private boolean isInterestingProject(IProject project) {
-		System.err.println("TODO");
-		return true;
+		try {
+			return project.hasNature(ProjectTemplateNature.ID);
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private boolean isInterestingFile(IResource resource) {
@@ -170,7 +172,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 
 	private void handleFileDelta(IResourceDelta delta) {
 		IFile templateFile = (IFile) delta.getResource();
-		String location = templateFile.getLocation().toString();
+		String location = templateFile.getParent().getProjectRelativePath().toString();
 		IProject project = templateFile.getProject();
 
 		int kind = delta.getKind();
