@@ -36,9 +36,9 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 	 */
 	private final Map<String, String> replacementStrings = new HashMap<String, String>();
 
-	private final ProjectTemplate template;
+	private ProjectTemplate template;
 
-	public ProjectTemplateSection(ProjectTemplate template) {
+	public void setProjectTemplate(ProjectTemplate template) {
 		this.template = template;
 	}
 

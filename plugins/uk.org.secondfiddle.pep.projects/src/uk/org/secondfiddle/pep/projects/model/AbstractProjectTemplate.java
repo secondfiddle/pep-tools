@@ -37,7 +37,7 @@ public abstract class AbstractProjectTemplate implements ProjectTemplate {
 	protected AbstractProjectTemplate(IFile templateFile) {
 		this.manifest = readManifest(templateFile);
 		this.projectName = templateFile.getProject().getName();
-		this.location = templateFile.getParent().getProjectRelativePath().toString();
+		this.location = templateFile.getParent().getLocation().toString();
 		this.name = manifest.getMainAttributes().getValue(TEMPLATE_NAME);
 		this.smallIcon = getIconUrl(TEMPLATE_ICON_SMALL, templateFile, manifest);
 		this.largeIcon = getIconUrl(TEMPLATE_ICON_LARGE, templateFile, manifest);

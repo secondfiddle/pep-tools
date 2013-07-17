@@ -16,16 +16,16 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.internal.WorkbenchImages;
-import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
-import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateExtensionLoader;
 import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateManager;
 
 @SuppressWarnings("restriction")
 public class ProjectTemplateWizard extends NewPluginTemplateWizard implements INewWizard, IExecutableExtension {
 
 	private final ProjectTemplateManager templateManager;
+
+	private ProjectTemplateSection projectTemplateSection;
 
 	private ProjectTemplate projectTemplate;
 
@@ -38,6 +38,7 @@ public class ProjectTemplateWizard extends NewPluginTemplateWizard implements IN
 			throws CoreException {
 		String templateId = config.getDeclaringExtension().getUniqueIdentifier();
 		this.projectTemplate = templateManager.getProjectTemplate(templateId);
+		this.projectTemplateSection.setProjectTemplate(projectTemplate);
 	}
 
 	@Override
@@ -84,7 +85,8 @@ public class ProjectTemplateWizard extends NewPluginTemplateWizard implements IN
 
 	@Override
 	public ITemplateSection[] createTemplateSections() {
-		return new ITemplateSection[] { new ProjectTemplateSection(projectTemplate) };
+		this.projectTemplateSection = new ProjectTemplateSection();
+		return new ITemplateSection[] { projectTemplateSection };
 	}
 
 }

@@ -153,7 +153,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 
 	private boolean isInterestingProject(IProject project) {
 		try {
-			return project.hasNature(ProjectTemplateNature.ID);
+			return project.isOpen() && project.hasNature(ProjectTemplateNature.ID);
 		} catch (CoreException e) {
 			throw new RuntimeException(e);
 		}
