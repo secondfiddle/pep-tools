@@ -1,4 +1,6 @@
-package uk.org.secondfiddle.pep.projects;
+package uk.org.secondfiddle.pep.projects.model.manager;
+
+import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
 
 public interface ProjectTemplateProviderListener {
 

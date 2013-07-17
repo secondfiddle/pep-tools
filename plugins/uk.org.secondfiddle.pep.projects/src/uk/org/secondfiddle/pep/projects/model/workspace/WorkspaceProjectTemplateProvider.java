@@ -1,8 +1,7 @@
-package uk.org.secondfiddle.pep.projects;
+package uk.org.secondfiddle.pep.projects.model.workspace;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -17,12 +16,17 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
+import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
+import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateProvider;
+import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateProviderListener;
+import uk.org.secondfiddle.pep.projects.nature.ProjectTemplateNature;
+
 public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider, IResourceChangeListener,
 		IResourceDeltaVisitor, IResourceVisitor {
 
 	private static final String TEMPLATE_MANIFEST = "template.mf";
 
-	private final Map<String, Collection<ProjectTemplate>> templates = new HashMap<String, Collection<ProjectTemplate>>();
+	private final Map<String, ProjectTemplate> templates = new HashMap<String, ProjectTemplate>();
 
 	private final ProjectTemplateProviderListener listener;
 
@@ -31,46 +35,35 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 		initialise();
 	}
 
-	private void addTemplate(ProjectTemplate template) {
-		Collection<ProjectTemplate> projectTemplates = this.templates.get(template.getProjectName());
-		if (projectTemplates == null) {
-			projectTemplates = new HashSet<ProjectTemplate>();
-			this.templates.put(template.getProjectName(), projectTemplates);
-		}
-		projectTemplates.add(template);
+	@Override
+	public ProjectTemplate getProjectTemplate(String id) {
+		return templates.get(id);
+	}
 
+	private void addTemplate(ProjectTemplate template) {
+		this.templates.put(template.getId(), template);
 		this.listener.templateAdded(template);
 	}
 
-	private void removeTemplate(ProjectTemplate template) {
-		Collection<ProjectTemplate> projectTemplates = this.templates.get(template.getProjectName());
-		if (projectTemplates != null) {
-			projectTemplates.remove(template);
-			if (projectTemplates.isEmpty()) {
-				this.templates.remove(template.getProjectName());
-			}
-		}
-
-		this.listener.templateRemoved(template);
-	}
-
-	private void removeTemplates(String project) {
-		Collection<ProjectTemplate> projectTemplates = this.templates.remove(project);
-		if (projectTemplates != null) {
-			for (ProjectTemplate template : projectTemplates) {
+	private void removeTemplates(String projectName) {
+		Iterator<ProjectTemplate> it = templates.values().iterator();
+		while (it.hasNext()) {
+			ProjectTemplate template = it.next();
+			if (projectName.equals(template.getProjectName())) {
+				it.remove();
 				this.listener.templateRemoved(template);
 			}
 		}
 	}
 
-	private void removeTemplate(String project, String location) {
-		Collection<ProjectTemplate> projectTemplates = this.templates.get(project);
-		if (projectTemplates != null) {
-			for (ProjectTemplate template : projectTemplates) {
-				if (template.getLocation().equals(location)) {
-					removeTemplate(template);
-					return;
-				}
+	private void removeTemplate(String projectName, String location) {
+		Iterator<ProjectTemplate> it = templates.values().iterator();
+		while (it.hasNext()) {
+			ProjectTemplate template = it.next();
+			if (projectName.equals(template.getProjectName()) && location.equals(template.getLocation())) {
+				it.remove();
+				this.listener.templateRemoved(template);
+				break;
 			}
 		}
 	}
@@ -79,8 +72,8 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		try {
 			workspaceRoot.accept(this);
-		} catch (CoreException e1) {
-			throw new RuntimeException(e1);
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
 		}
 
 		int event = IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.POST_CHANGE;
@@ -129,7 +122,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 					return true;
 				case IResource.FILE:
 					if (isInterestingFile(resource)) {
-						handleFileDelta(delta);
+						handleTemplateFileDelta(delta);
 					}
 					return false;
 				}
@@ -170,7 +163,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 		return (resource.getName().equals(TEMPLATE_MANIFEST) && resource instanceof IFile);
 	}
 
-	private void handleFileDelta(IResourceDelta delta) {
+	private void handleTemplateFileDelta(IResourceDelta delta) {
 		IFile templateFile = (IFile) delta.getResource();
 		String location = templateFile.getParent().getProjectRelativePath().toString();
 		IProject project = templateFile.getProject();

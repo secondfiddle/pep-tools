@@ -6,6 +6,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IStartup;
 import org.osgi.framework.BundleContext;
 
+import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateManager;
+
 public class ProjectTemplateActivator extends Plugin {
 
 	public static final String PLUGIN_ID = ProjectTemplateActivator.class.getPackage().getName();

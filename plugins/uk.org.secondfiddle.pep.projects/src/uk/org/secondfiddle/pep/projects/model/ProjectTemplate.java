@@ -1,6 +1,4 @@
-package uk.org.secondfiddle.pep.projects;
-
-import java.net.URL;
+package uk.org.secondfiddle.pep.projects.model;
 
 public interface ProjectTemplate {
 
@@ -8,7 +6,9 @@ public interface ProjectTemplate {
 
 	String getName();
 
-	URL getIcon();
+	ProjectTemplateIcon getSmallIcon();
+
+	ProjectTemplateIcon getLargeIcon();
 
 	String getProjectName();
 
