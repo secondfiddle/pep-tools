@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
-import uk.org.secondfiddle.pep.projects.model.workspace.WorkspaceProjectTemplateProvider;
+import uk.org.secondfiddle.pep.projects.model.impl.workspace.WorkspaceProjectTemplateProvider;
 
 public class ProjectTemplateManager implements ProjectTemplateProviderListener {
 

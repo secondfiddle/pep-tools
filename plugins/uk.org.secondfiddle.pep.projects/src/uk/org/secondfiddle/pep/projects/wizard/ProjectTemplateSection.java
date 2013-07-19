@@ -5,8 +5,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.CoreException;
@@ -17,19 +19,21 @@ import org.eclipse.pde.ui.templates.BaseOptionTemplateSection;
 import org.eclipse.pde.ui.templates.OptionTemplateWizardPage;
 import org.eclipse.pde.ui.templates.TemplateOption;
 
+import uk.org.secondfiddle.pep.projects.model.ParameterDescriptor;
+import uk.org.secondfiddle.pep.projects.model.ParameterMapping;
 import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
 
 public class ProjectTemplateSection extends BaseOptionTemplateSection {
 
+	private static final String UNMAPPED_VALUE_SUFFIX = ":unmapped";
+
 	private static final String TEMPLATE_DIRECTORY_NAME = "template";
+
+	private final TemplateOptionFactory templateOptionFactory = new TemplateOptionFactory();
 
 	private final List<WizardPage> pages = new ArrayList<WizardPage>();
 
-	/**
-	 * {@link TemplateOption} fields required for
-	 * {@link OptionTemplateWizardPage}.
-	 */
-	private final ArrayList<TemplateOption> options = new ArrayList<TemplateOption>();
+	private final Map<TemplateOption, ParameterDescriptor> options = new LinkedHashMap<TemplateOption, ParameterDescriptor>();
 
 	/**
 	 * Replacement values to fill out the template.
@@ -45,7 +49,7 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 	@Override
 	protected void registerOption(TemplateOption option, Object value, int pageIndex) {
 		super.registerOption(option, value, pageIndex);
-		options.add(option);
+		options.put(option, null);
 	}
 
 	@Override
@@ -77,18 +81,53 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 	}
 
 	@Override
-	public String getLabel() {
-		return "label";
-	}
-
-	@Override
 	public void addPages(Wizard wizard) {
 		replacementStrings.put("testsub", "MyClass");
 		replacementStrings.put("testsrc", "src/fnarg.wizards");
-		replacementStrings.put(KEY_PACKAGE_NAME, "base.pack");
-		addOption("test", "Test", "value", 0);
-		pages.add(new OptionTemplateWizardPage(this, options, null));
-		wizard.addPage(pages.get(0));
+
+		addOptions();
+
+		WizardPage page = new OptionTemplateWizardPage(this, new ArrayList<TemplateOption>(options.keySet()), null);
+		page.setTitle(template.getName());
+		pages.add(page);
+		wizard.addPage(page);
+	}
+
+	private void addOptions() {
+		addOption(KEY_PLUGIN_ID, "Project name:", "", 0);
+		for (ParameterDescriptor param : template.getParameters()) {
+			TemplateOption option = templateOptionFactory.createTemplateOption(this, param);
+			registerOption(option, option.getValue(), 0);
+			options.put(option, param);
+		}
+	}
+
+	public void finish() {
+		replacementStrings.put(KEY_PACKAGE_NAME, String.valueOf(getValue(KEY_PLUGIN_NAME)));
+
+		for (Entry<TemplateOption, ParameterDescriptor> entry : options.entrySet()) {
+			TemplateOption templateOption = entry.getKey();
+			ParameterDescriptor descriptor = entry.getValue();
+
+			Object value = templateOption.getValue();
+			if (value instanceof String && descriptor != null) {
+				String valueString = value.toString();
+				replacementStrings.put(templateOption.getName() + UNMAPPED_VALUE_SUFFIX, valueString);
+				ParameterMapping valueMapping = descriptor.getValueMapping();
+				String newValue = valueString.replaceAll(valueMapping.getPattern(), valueMapping.getReplacement());
+				templateOption.setValue(newValue);
+			}
+		}
+	}
+
+	@Override
+	public void validateOptions(TemplateOption changed) {
+		System.err.println("validateOptions");
+	}
+
+	@Override
+	public String getLabel() {
+		return "";
 	}
 
 	@Override
@@ -112,18 +151,12 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 	}
 
 	@Override
-	public void validateOptions(TemplateOption changed) {
-		System.err.println("validateOptions");
-	}
-
-	@Override
 	protected ResourceBundle getPluginResourceBundle() {
 		return null;
 	}
 
 	@Override
 	protected void updateModel(IProgressMonitor monitor) throws CoreException {
-		System.err.println("updateModel");
 	}
 
 }

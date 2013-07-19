@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.projects.model.workspace;
+package uk.org.secondfiddle.pep.projects.model.impl.workspace;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -165,7 +165,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 
 	private void handleTemplateFileDelta(IResourceDelta delta) {
 		IFile templateFile = (IFile) delta.getResource();
-		String location = templateFile.getParent().getProjectRelativePath().toString();
+		String location = templateFile.getParent().getLocation().toString();
 		IProject project = templateFile.getProject();
 
 		int kind = delta.getKind();

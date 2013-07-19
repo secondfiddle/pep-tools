@@ -1,8 +1,13 @@
 package uk.org.secondfiddle.pep.projects.wizard;
 
+import static org.eclipse.pde.ui.templates.AbstractTemplateSection.KEY_PLUGIN_ID;
+
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -22,6 +27,8 @@ import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateManager;
 
 @SuppressWarnings("restriction")
 public class ProjectTemplateWizard extends NewPluginTemplateWizard implements INewWizard, IExecutableExtension {
+
+	private static final String PROJECT_LOCATION = "projectLocation";
 
 	private final ProjectTemplateManager templateManager;
 
@@ -45,12 +52,12 @@ public class ProjectTemplateWizard extends NewPluginTemplateWizard implements IN
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		String imageName = projectTemplate.getLargeIcon().getId();
 		setDefaultPageImageDescriptor(WorkbenchImages.getImageDescriptor(imageName));
+		setWindowTitle("New " + projectTemplate.getName());
 	}
 
 	@Override
 	public boolean performFinish() {
-
-		// org.eclipse.ui.wizards.datatransfer.ImportOperation
+		projectTemplateSection.finish();
 
 		try {
 			getContainer().run(false, true, new WorkspaceModifyOperation() {
@@ -58,9 +65,19 @@ public class ProjectTemplateWizard extends NewPluginTemplateWizard implements IN
 				@Override
 				protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
 						InterruptedException {
-					IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-					IProject project = workspaceRoot.getProject("this.is.mine");
-					project.create(monitor);
+					IWorkspace workspace = ResourcesPlugin.getWorkspace();
+					IWorkspaceRoot workspaceRoot = workspace.getRoot();
+
+					String projectName = projectTemplateSection.getValue(KEY_PLUGIN_ID).toString();
+					IProject project = workspaceRoot.getProject(projectName);
+					IProjectDescription description = workspace.newProjectDescription(projectName);
+					Object location = projectTemplateSection.getValue(PROJECT_LOCATION);
+					if (location != null) {
+						File locationFile = new File(location.toString());
+						description.setLocationURI(locationFile.toURI());
+					}
+
+					project.create(description, monitor);
 					project.open(monitor);
 
 					for (ITemplateSection templateSection : getTemplateSections()) {

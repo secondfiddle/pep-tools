@@ -1,10 +1,14 @@
-package uk.org.secondfiddle.pep.projects.model;
+package uk.org.secondfiddle.pep.projects.model.impl;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import org.apache.commons.io.IOUtils;
@@ -13,6 +17,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
 import uk.org.secondfiddle.pep.projects.ProjectTemplateActivator;
+import uk.org.secondfiddle.pep.projects.model.ParameterDescriptor;
+import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
+import uk.org.secondfiddle.pep.projects.model.ProjectTemplateIcon;
 
 public abstract class AbstractProjectTemplate implements ProjectTemplate {
 
@@ -21,6 +28,22 @@ public abstract class AbstractProjectTemplate implements ProjectTemplate {
 	private static final String TEMPLATE_ICON_SMALL = "TemplateIconSmall";
 
 	private static final String TEMPLATE_ICON_LARGE = "TemplateIconLarge";
+
+	private static final String PARAMETER_LABEL = "Label";
+
+	private static final String PARAMETER_TYPE = "Type";
+
+	private static final String PARAMETER_DEFAULT_VALUE = "DefaultValue";
+
+	private static final String PARAMETER_PREFERENCE = "Preference";
+
+	private static final String PARAMETER_VALUE_FILTER = "ValueFilter";
+
+	private static final String PARAMETER_VALUE_MAPPING = "ValueMapping";
+
+	private static final String PARAMETER_DISPLAY_MAPPING = "DisplayMapping";
+
+	private static final String PARAMETER_OPTIONS = "Options";
 
 	private final Manifest manifest;
 
@@ -33,6 +56,8 @@ public abstract class AbstractProjectTemplate implements ProjectTemplate {
 	private final URL largeIcon;
 
 	private final String location;
+
+	private List<ParameterDescriptor> parameters;
 
 	protected AbstractProjectTemplate(IFile templateFile) {
 		this.manifest = readManifest(templateFile);
@@ -48,7 +73,9 @@ public abstract class AbstractProjectTemplate implements ProjectTemplate {
 
 		try {
 			manifestStream = templateFile.getContents();
-			return new Manifest(manifestStream);
+			Manifest manifest = new OrderedManifest();
+			manifest.read(manifestStream);
+			return manifest;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (CoreException e) {
@@ -112,6 +139,32 @@ public abstract class AbstractProjectTemplate implements ProjectTemplate {
 	@Override
 	public String getLocation() {
 		return location;
+	}
+
+	@Override
+	public List<ParameterDescriptor> getParameters() {
+		if (parameters == null) {
+			parameters = readParameters();
+		}
+		return parameters;
+	}
+
+	private List<ParameterDescriptor> readParameters() {
+		List<ParameterDescriptor> parameters = new ArrayList<ParameterDescriptor>();
+		for (Entry<String, Attributes> paramEntry : manifest.getEntries().entrySet()) {
+			String name = paramEntry.getKey();
+			String label = paramEntry.getValue().getValue(PARAMETER_LABEL);
+			String type = paramEntry.getValue().getValue(PARAMETER_TYPE);
+			String defaultValue = paramEntry.getValue().getValue(PARAMETER_DEFAULT_VALUE);
+			String preference = paramEntry.getValue().getValue(PARAMETER_PREFERENCE);
+			String valueFilter = paramEntry.getValue().getValue(PARAMETER_VALUE_FILTER);
+			String valueMapping = paramEntry.getValue().getValue(PARAMETER_VALUE_MAPPING);
+			String labelMapping = paramEntry.getValue().getValue(PARAMETER_DISPLAY_MAPPING);
+			String options = paramEntry.getValue().getValue(PARAMETER_OPTIONS);
+			parameters.add(new DefaultParameterDescriptor(name, label, type, defaultValue, preference, valueFilter,
+					valueMapping, labelMapping, options));
+		}
+		return parameters;
 	}
 
 	@Override

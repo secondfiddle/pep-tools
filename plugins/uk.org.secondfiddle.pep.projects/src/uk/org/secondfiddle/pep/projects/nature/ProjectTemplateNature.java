@@ -4,7 +4,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
-import uk.org.secondfiddle.pep.projects.model.workspace.WorkspaceProjectTemplateProvider;
+import uk.org.secondfiddle.pep.projects.model.impl.workspace.WorkspaceProjectTemplateProvider;
 
 /**
  * This nature simply marks a project as "of interest" to the
