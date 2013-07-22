@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -17,6 +18,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
 import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
+import uk.org.secondfiddle.pep.projects.model.impl.DefaultProjectTemplate;
 import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateProvider;
 import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateProviderListener;
 import uk.org.secondfiddle.pep.projects.nature.ProjectTemplateNature;
@@ -26,7 +28,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 
 	private static final String TEMPLATE_MANIFEST = "template.mf";
 
-	private final Map<String, ProjectTemplate> templates = new HashMap<String, ProjectTemplate>();
+	private final Map<String, ProjectTemplateEntry> templates = new HashMap<String, ProjectTemplateEntry>();
 
 	private final ProjectTemplateProviderListener listener;
 
@@ -37,33 +39,83 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 
 	@Override
 	public ProjectTemplate getProjectTemplate(String id) {
-		return templates.get(id);
+		ProjectTemplateEntry entry = templates.get(id);
+		return (entry == null ? null : entry.getTemplate());
 	}
 
 	private void addTemplate(ProjectTemplate template) {
-		this.templates.put(template.getId(), template);
-		this.listener.templateAdded(template);
+		if (isValid(template)) {
+			ProjectTemplateEntry templateEntry = new ProjectTemplateEntry(template, isResolved(template));
+			this.templates.put(template.getId(), templateEntry);
+			postAdd(templateEntry);
+		}
+	}
+
+	private boolean isResolved(ProjectTemplate template) {
+		if (StringUtils.isEmpty(template.getExtends())) {
+			return true;
+		}
+		return templates.containsKey(template.getExtends());
+	}
+
+	private boolean isValid(ProjectTemplate template) {
+		return !StringUtils.isEmpty(template.getId()) && !StringUtils.isEmpty(template.getName())
+				&& !templates.containsKey(template.getId());
 	}
 
 	private void removeTemplates(String projectName) {
-		Iterator<ProjectTemplate> it = templates.values().iterator();
+		Iterator<ProjectTemplateEntry> it = templates.values().iterator();
 		while (it.hasNext()) {
-			ProjectTemplate template = it.next();
+			ProjectTemplateEntry templateEntry = it.next();
+			ProjectTemplate template = templateEntry.getTemplate();
 			if (projectName.equals(template.getProjectName())) {
 				it.remove();
-				this.listener.templateRemoved(template);
+				postRemove(templateEntry);
 			}
 		}
 	}
 
 	private void removeTemplate(String projectName, String location) {
-		Iterator<ProjectTemplate> it = templates.values().iterator();
+		Iterator<ProjectTemplateEntry> it = templates.values().iterator();
 		while (it.hasNext()) {
-			ProjectTemplate template = it.next();
-			if (projectName.equals(template.getProjectName()) && location.equals(template.getLocation())) {
+			ProjectTemplateEntry templateEntry = it.next();
+			ProjectTemplate template = templateEntry.getTemplate();
+			if (projectName.equals(template.getProjectName()) && location.equals(template.getPrimaryLocation())) {
 				it.remove();
-				this.listener.templateRemoved(template);
+				postRemove(templateEntry);
 				break;
+			}
+		}
+	}
+
+	private void postAdd(ProjectTemplateEntry addedEntry) {
+		if (addedEntry.isResolved()) {
+			this.listener.templateAdded(addedEntry.getTemplate());
+			resolveExtensions(addedEntry);
+		}
+	}
+
+	private void resolveExtensions(ProjectTemplateEntry resolved) {
+		for (ProjectTemplateEntry entry : templates.values()) {
+			if (!entry.isResolved() && resolved.getTemplate().getId().equals(entry.getTemplate().getExtends())) {
+				entry.setResolved(true);
+				this.listener.templateAdded(entry.getTemplate());
+				resolveExtensions(entry);
+			}
+		}
+	}
+
+	private void postRemove(ProjectTemplateEntry removedEntry) {
+		this.listener.templateRemoved(removedEntry.getTemplate());
+		unresolveExtensions(removedEntry);
+	}
+
+	private void unresolveExtensions(ProjectTemplateEntry unresolved) {
+		for (ProjectTemplateEntry entry : templates.values()) {
+			if (entry.isResolved() && unresolved.getTemplate().getId().equals(entry.getTemplate().getExtends())) {
+				entry.setResolved(false);
+				this.listener.templateRemoved(entry.getTemplate());
+				unresolveExtensions(entry);
 			}
 		}
 	}
@@ -143,7 +195,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 				return true;
 			case IResource.FILE:
 				if (isInterestingFile(resource)) {
-					addTemplate(new WorkspaceProjectTemplate((IFile) resource));
+					addTemplate(new DefaultProjectTemplate(this, (IFile) resource));
 				}
 				return false;
 			}
@@ -172,10 +224,10 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 		if (kind == IResourceDelta.REMOVED) {
 			removeTemplate(project.getName(), location);
 		} else if (kind == IResourceDelta.ADDED) {
-			addTemplate(new WorkspaceProjectTemplate(templateFile));
+			addTemplate(new DefaultProjectTemplate(this, templateFile));
 		} else if (kind == IResourceDelta.CHANGED) {
 			removeTemplate(project.getName(), location);
-			addTemplate(new WorkspaceProjectTemplate(templateFile));
+			addTemplate(new DefaultProjectTemplate(this, templateFile));
 		}
 	}
 

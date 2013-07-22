@@ -34,6 +34,12 @@ public class ProjectTemplateActivator extends Plugin {
 		}
 	}
 
+	public static void logWarning(String message) {
+		String pluginId = plugin.getBundle().getSymbolicName();
+		Status status = new Status(IStatus.WARNING, pluginId, message);
+		plugin.getLog().log(status);
+	}
+
 	public static void logError(String message) {
 		logError(message, null);
 	}

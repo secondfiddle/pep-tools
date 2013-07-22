@@ -40,8 +40,8 @@ public class ProjectTemplateExtensionLoader {
 		Object token = registry.getTemporaryUserToken();
 
 		registry.addExtension(id, contributor, false, label, EXTENSION_POINT_ID, description, token);
-		addImage(template.getSmallIcon());
-		addImage(template.getLargeIcon());
+		addImage(template.getSmallIcon(), template);
+		addImage(template.getLargeIcon(), template);
 	}
 
 	public void removeTemplateExtension(ProjectTemplate template) {
@@ -49,17 +49,21 @@ public class ProjectTemplateExtensionLoader {
 		Object token = registry.getTemporaryUserToken();
 
 		registry.removeExtension(extension, token);
-		removeImage(template.getSmallIcon());
-		removeImage(template.getLargeIcon());
+		removeImage(template.getSmallIcon(), template);
+		removeImage(template.getLargeIcon(), template);
 	}
 
-	private void addImage(ProjectTemplateIcon icon) {
-		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(icon.getUrl());
-		WorkbenchImages.declareImage(icon.getId(), imageDescriptor, false);
+	private void addImage(ProjectTemplateIcon icon, ProjectTemplate template) {
+		if (icon.getUrl() != null && template.getId().equals(icon.getTemplateId())) {
+			ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(icon.getUrl());
+			WorkbenchImages.declareImage(icon.getId(), imageDescriptor, false);
+		}
 	}
 
-	private void removeImage(ProjectTemplateIcon icon) {
-		WorkbenchImages.getDescriptors().remove(icon.getId());
+	private void removeImage(ProjectTemplateIcon icon, ProjectTemplate template) {
+		if (icon.getUrl() != null && template.getId().equals(icon.getTemplateId())) {
+			WorkbenchImages.getDescriptors().remove(icon.getId());
+		}
 	}
 
 	private ConfigurationElementDescription createDescription(ProjectTemplate template) {

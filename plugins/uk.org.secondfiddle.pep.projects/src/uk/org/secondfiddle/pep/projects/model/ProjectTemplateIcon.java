@@ -8,4 +8,6 @@ public interface ProjectTemplateIcon {
 
 	String getId();
 
+	String getTemplateId();
+
 }

@@ -85,7 +85,7 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 	@Override
 	public URL getTemplateLocation() {
 		try {
-			File templateDir = new File(template.getLocation(), TEMPLATE_DIRECTORY_NAME);
+			File templateDir = new File(template.getPrimaryLocation(), TEMPLATE_DIRECTORY_NAME);
 			return templateDir.toURI().toURL();
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);

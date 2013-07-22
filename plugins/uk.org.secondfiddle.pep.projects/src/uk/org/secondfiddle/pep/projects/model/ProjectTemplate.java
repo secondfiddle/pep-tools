@@ -8,13 +8,17 @@ public interface ProjectTemplate {
 
 	String getName();
 
+	String getExtends();
+
 	ProjectTemplateIcon getSmallIcon();
 
 	ProjectTemplateIcon getLargeIcon();
 
 	String getProjectName();
 
-	String getLocation();
+	String getPrimaryLocation();
+
+	List<String> getLocations();
 
 	List<ParameterDescriptor> getParameters();
 
