@@ -67,6 +67,8 @@ public class TemplateOptionFactory {
 			templateOption.setValue(selectionValue);
 		}
 
+		templateOption.setRequired(true);
+
 		return templateOption;
 	}
 

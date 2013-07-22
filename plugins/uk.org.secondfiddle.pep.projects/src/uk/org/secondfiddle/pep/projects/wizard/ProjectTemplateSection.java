@@ -100,6 +100,8 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 		page.setTitle(template.getName());
 		pages.add(page);
 		wizard.addPage(page);
+
+		validateOptions(null);
 	}
 
 	private void addOptions() {
@@ -152,7 +154,18 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 
 	@Override
 	public void validateOptions(TemplateOption changed) {
-		System.err.println("validateOptions");
+		WizardPage page = getPage(0);
+
+		for (TemplateOption option : options.keySet()) {
+			if (option.isRequired() && option.isEmpty()) {
+				page.setPageComplete(false);
+				page.setErrorMessage("Required information is missing");
+				return;
+			}
+		}
+
+		page.setPageComplete(true);
+		page.setErrorMessage(null);
 	}
 
 	@Override

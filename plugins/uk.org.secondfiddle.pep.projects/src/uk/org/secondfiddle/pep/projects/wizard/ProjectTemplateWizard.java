@@ -120,12 +120,6 @@ public class ProjectTemplateWizard extends NewPluginTemplateWizard implements IN
 			throw new RuntimeException(e);
 		}
 
-		// IWorkingSet[] workingSets = fProjectPage.getSelectedWorkingSets();
-		// if (workingSets.length > 0) {
-		// getWorkbench().getWorkingSetManager().addToWorkingSets(fProjectProvider.getProject(),
-		// workingSets);
-		// }
-
 		return true;
 	}
 

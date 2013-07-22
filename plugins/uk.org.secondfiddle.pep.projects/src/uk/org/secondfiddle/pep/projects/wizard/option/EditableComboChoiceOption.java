@@ -52,6 +52,11 @@ public class EditableComboChoiceOption extends AbstractChoiceOption {
 		}
 	}
 
+	@Override
+	public boolean isEmpty() {
+		return fCombo.getText().isEmpty();
+	}
+
 	protected void setOptionValue(Object value) {
 		if (fCombo != null && value != null) {
 			selectChoice(value.toString());
