@@ -1,6 +1,7 @@
 package uk.org.secondfiddle.pep.projects.wizard;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,15 +14,19 @@ import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.pde.ui.templates.BaseOptionTemplateSection;
 import org.eclipse.pde.ui.templates.OptionTemplateWizardPage;
 import org.eclipse.pde.ui.templates.TemplateOption;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import uk.org.secondfiddle.pep.projects.model.ParameterDescriptor;
 import uk.org.secondfiddle.pep.projects.model.ParameterMapping;
+import uk.org.secondfiddle.pep.projects.model.ParameterPreference;
 import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
 
 public class ProjectTemplateSection extends BaseOptionTemplateSection {
@@ -116,14 +121,31 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 		for (Entry<TemplateOption, ParameterDescriptor> entry : options.entrySet()) {
 			TemplateOption templateOption = entry.getKey();
 			ParameterDescriptor descriptor = entry.getValue();
+			if (descriptor == null) {
+				continue;
+			}
 
 			Object value = templateOption.getValue();
-			if (value instanceof String && descriptor != null) {
-				String valueString = value.toString();
-				replacementStrings.put(templateOption.getName() + UNMAPPED_VALUE_SUFFIX, valueString);
-				ParameterMapping valueMapping = descriptor.getValueMapping();
-				String newValue = valueString.replaceAll(valueMapping.getPattern(), valueMapping.getReplacement());
-				templateOption.setValue(newValue);
+			if (!(value instanceof String)) {
+				continue;
+			}
+
+			String valueString = (String) value;
+			replacementStrings.put(templateOption.getName() + UNMAPPED_VALUE_SUFFIX, valueString);
+			ParameterMapping valueMapping = descriptor.getValueMapping();
+			String newValue = valueString.replaceAll(valueMapping.getPattern(), valueMapping.getReplacement());
+			templateOption.setValue(newValue);
+
+			ParameterPreference preference = descriptor.getPreference();
+			if (preference != null) {
+				IPersistentPreferenceStore preferences = new ScopedPreferenceStore(InstanceScope.INSTANCE,
+						preference.getPluginId());
+				preferences.setValue(preference.getPreferenceName(), valueString);
+				try {
+					preferences.save();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 	}

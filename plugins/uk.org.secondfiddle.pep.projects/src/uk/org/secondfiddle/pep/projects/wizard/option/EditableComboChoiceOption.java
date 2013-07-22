@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.projects.wizard;
+package uk.org.secondfiddle.pep.projects.wizard.option;
 
 import org.eclipse.pde.ui.templates.AbstractChoiceOption;
 import org.eclipse.pde.ui.templates.BaseOptionTemplateSection;

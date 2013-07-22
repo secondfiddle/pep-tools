@@ -21,6 +21,9 @@ import uk.org.secondfiddle.pep.projects.model.ParameterDescriptor;
 import uk.org.secondfiddle.pep.projects.model.ParameterMapping;
 import uk.org.secondfiddle.pep.projects.model.ParameterPreference;
 import uk.org.secondfiddle.pep.projects.model.ParameterType;
+import uk.org.secondfiddle.pep.projects.wizard.option.DirectoryOption;
+import uk.org.secondfiddle.pep.projects.wizard.option.EditableComboChoiceOption;
+import uk.org.secondfiddle.pep.projects.wizard.option.HiddenTemplateOption;
 
 @SuppressWarnings("restriction")
 public class TemplateOptionFactory {

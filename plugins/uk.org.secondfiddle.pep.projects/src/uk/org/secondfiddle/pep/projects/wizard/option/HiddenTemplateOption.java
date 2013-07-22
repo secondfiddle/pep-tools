@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.projects.wizard;
+package uk.org.secondfiddle.pep.projects.wizard.option;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
