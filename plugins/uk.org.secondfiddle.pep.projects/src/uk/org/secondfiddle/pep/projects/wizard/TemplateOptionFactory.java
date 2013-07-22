@@ -2,11 +2,13 @@ package uk.org.secondfiddle.pep.projects.wizard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.internal.ui.workingsets.IWorkingSetIDs;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.pde.ui.templates.BaseOptionTemplateSection;
 import org.eclipse.pde.ui.templates.ComboChoiceOption;
 import org.eclipse.pde.ui.templates.StringOption;
@@ -22,6 +24,12 @@ import uk.org.secondfiddle.pep.projects.model.ParameterType;
 
 @SuppressWarnings("restriction")
 public class TemplateOptionFactory {
+
+	private IStructuredSelection selection;
+
+	public void setSelection(IStructuredSelection selection) {
+		this.selection = selection;
+	}
 
 	public TemplateOption createTemplateOption(BaseOptionTemplateSection section, ParameterDescriptor descriptor) {
 		String name = descriptor.getName();
@@ -46,13 +54,39 @@ public class TemplateOptionFactory {
 		}
 
 		String preferenceValue = getPreferenceValue(descriptor);
-		if (preferenceValue == null) {
-			templateOption.setValue(descriptor.getDefaultValue());
-		} else {
+		String defaultValue = descriptor.getDefaultValue();
+		String selectionValue = getFromSelection(descriptor);
+		if (preferenceValue != null) {
 			templateOption.setValue(preferenceValue);
+		} else if (defaultValue != null) {
+			templateOption.setValue(defaultValue);
+		} else if (selectionValue != null) {
+			templateOption.setValue(selectionValue);
 		}
 
 		return templateOption;
+	}
+
+	private String getFromSelection(ParameterDescriptor descriptor) {
+		if (selection == null) {
+			return null;
+		}
+
+		if (descriptor.getType() == ParameterType.WORKINGSET) {
+			for (Object selected : selection.toArray()) {
+				if (selected instanceof IWorkingSet) {
+					IWorkingSet workingSet = (IWorkingSet) selected;
+					if (!workingSet.isAggregateWorkingSet() && IWorkingSetIDs.JAVA.equals(workingSet.getId())) {
+						ParameterMapping mapping = descriptor.getDisplayMapping();
+						Pattern labelPattern = Pattern.compile(mapping.getPattern());
+						Matcher matcher = labelPattern.matcher(workingSet.getName());
+						return matcher.replaceAll(mapping.getReplacement());
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	private List<String> getWorkingSetNames() {

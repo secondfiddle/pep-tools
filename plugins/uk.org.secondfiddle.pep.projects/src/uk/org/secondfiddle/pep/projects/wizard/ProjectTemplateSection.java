@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.pde.ui.templates.BaseOptionTemplateSection;
@@ -29,8 +30,6 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 
 	private static final String TEMPLATE_DIRECTORY_NAME = "template";
 
-	private final TemplateOptionFactory templateOptionFactory = new TemplateOptionFactory();
-
 	private final List<WizardPage> pages = new ArrayList<WizardPage>();
 
 	private final Map<TemplateOption, ParameterDescriptor> options = new LinkedHashMap<TemplateOption, ParameterDescriptor>();
@@ -39,6 +38,8 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 	 * Replacement values to fill out the template.
 	 */
 	private final Map<String, String> replacementStrings = new HashMap<String, String>();
+
+	private final TemplateOptionFactory templateOptionFactory = new TemplateOptionFactory();
 
 	private ProjectTemplate template;
 
@@ -71,10 +72,16 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 		return (value == null ? replacementStrings.get(name) : value);
 	}
 
+	public String getValueString(String name) {
+		Object value = getValue(name);
+		return (value == null ? null : value.toString());
+	}
+
 	@Override
 	public URL getTemplateLocation() {
 		try {
-			return new File(template.getLocation(), TEMPLATE_DIRECTORY_NAME).toURI().toURL();
+			File templateDir = new File(template.getLocation(), TEMPLATE_DIRECTORY_NAME);
+			return templateDir.toURI().toURL();
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
@@ -82,9 +89,6 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 
 	@Override
 	public void addPages(Wizard wizard) {
-		replacementStrings.put("testsub", "MyClass");
-		replacementStrings.put("testsrc", "src/fnarg.wizards");
-
 		addOptions();
 
 		WizardPage page = new OptionTemplateWizardPage(this, new ArrayList<TemplateOption>(options.keySet()), null);
@@ -102,8 +106,12 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 		}
 	}
 
+	public void setSelection(IStructuredSelection selection) {
+		this.templateOptionFactory.setSelection(selection);
+	}
+
 	public void finish() {
-		replacementStrings.put(KEY_PACKAGE_NAME, String.valueOf(getValue(KEY_PLUGIN_NAME)));
+		replacementStrings.put(KEY_PACKAGE_NAME, String.valueOf(getValue(KEY_PLUGIN_ID)));
 
 		for (Entry<TemplateOption, ParameterDescriptor> entry : options.entrySet()) {
 			TemplateOption templateOption = entry.getKey();
