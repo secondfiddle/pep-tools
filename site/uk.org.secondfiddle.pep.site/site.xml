@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/uk.org.secondfiddle.pep_1.0.0.201307231201.jar" id="uk.org.secondfiddle.pep" version="1.0.0.201307231201">
+      <category name="PEP Tools"/>
+   </feature>
+   <category-def name="PEP Tools" label="PEP Tools: PDE/Eclipse Productivity">
+      <description>
+         PEP Tools: PDE/Eclipse Productivity provides additional support for developing Eclipse RCP applications within the Eclipse IDE.
+      </description>
+   </category-def>
+</site>
