@@ -128,7 +128,7 @@ public class BaseProjectTemplate extends AbstractProjectTemplate {
 
 	@Override
 	public String getId() {
-		return projectName + ":" + name;
+		return ProjectTemplateActivator.PLUGIN_ID + "." + projectName + ":" + name;
 	}
 
 	@Override
