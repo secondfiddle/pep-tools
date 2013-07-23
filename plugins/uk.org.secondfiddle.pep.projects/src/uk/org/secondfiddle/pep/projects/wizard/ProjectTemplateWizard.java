@@ -31,6 +31,7 @@ import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.WorkbenchImages;
+import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
 import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateExtensionLoader;
@@ -100,9 +101,10 @@ public class ProjectTemplateWizard extends NewPluginTemplateWizard implements IN
 						templateSection.execute(project, null, monitor);
 					}
 
+					Workbench workbench = Workbench.getInstance();
 					String wsName = projectTemplateSection.getValueString(KEY_WORKING_SET);
 					if (wsName != null) {
-						IWorkingSetManager wsManager = Workbench.getInstance().getWorkingSetManager();
+						IWorkingSetManager wsManager = workbench.getWorkingSetManager();
 						IWorkingSet workingSet = wsManager.getWorkingSet(wsName);
 						if (workingSet == null) {
 							workingSet = wsManager.createWorkingSet(wsName, new IAdaptable[] { project });
@@ -114,6 +116,7 @@ public class ProjectTemplateWizard extends NewPluginTemplateWizard implements IN
 						}
 					}
 
+					BasicNewResourceWizard.selectAndReveal(project, workbench.getActiveWorkbenchWindow());
 				}
 			});
 		} catch (InvocationTargetException e) {
