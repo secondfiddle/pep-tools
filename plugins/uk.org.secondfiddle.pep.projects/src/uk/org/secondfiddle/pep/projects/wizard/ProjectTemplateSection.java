@@ -34,6 +34,8 @@ import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
 
 public class ProjectTemplateSection extends BaseOptionTemplateSection {
 
+	private static final String PLACEHOLDER_FILE = "empty";
+
 	private static final String UNMAPPED_VALUE_SUFFIX = ":unmapped";
 
 	private static final String UPPER_CAMEL_CASE_SUFFIX = ":uppercamelcase";
@@ -94,6 +96,11 @@ public class ProjectTemplateSection extends BaseOptionTemplateSection {
 		for (String location : template.getLocations()) {
 			generateFiles(monitor, toTemplateLocationURL(location));
 		}
+	}
+
+	@Override
+	protected boolean isOkToCreateFile(File sourceFile) {
+		return !PLACEHOLDER_FILE.equals(sourceFile.getName());
 	}
 
 	private URL toTemplateLocationURL(String location) {
