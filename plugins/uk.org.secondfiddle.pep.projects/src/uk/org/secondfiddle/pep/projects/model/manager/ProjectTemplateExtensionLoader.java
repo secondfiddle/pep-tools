@@ -44,7 +44,7 @@ public class ProjectTemplateExtensionLoader {
 	public void addTemplateExtension(ProjectTemplate template) {
 		ensureGroupExists(template);
 
-		String id = template.getId();
+		String id = toExtensionId(template.getId());
 		String label = template.getName();
 		ConfigurationElementDescription description = createTemplateDescription(template);
 		addExtension(id, label, description);
@@ -68,7 +68,7 @@ public class ProjectTemplateExtensionLoader {
 	}
 
 	public void removeTemplateExtension(ProjectTemplate template) {
-		String id = template.getId();
+		String id = toExtensionId(template.getId());
 		removeExtension(id);
 
 		removeImage(template.getSmallIcon(), template);
@@ -119,6 +119,14 @@ public class ProjectTemplateExtensionLoader {
 
 		ConfigurationElementAttribute[] attsArray = atts.toArray(new ConfigurationElementAttribute[atts.size()]);
 		return new ConfigurationElementDescription(IWorkbenchRegistryConstants.TAG_WIZARD, attsArray, null, null);
+	}
+
+	public static String toExtensionId(String templateId) {
+		return ProjectTemplateActivator.PLUGIN_ID + "." + templateId;
+	}
+
+	public static String toTemplateId(String extensionId) {
+		return extensionId.replace(ProjectTemplateActivator.PLUGIN_ID + ".", "");
 	}
 
 }

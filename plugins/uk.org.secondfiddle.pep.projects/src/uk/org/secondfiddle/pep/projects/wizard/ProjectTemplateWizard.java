@@ -33,6 +33,7 @@ import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.WorkbenchImages;
 
 import uk.org.secondfiddle.pep.projects.model.ProjectTemplate;
+import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateExtensionLoader;
 import uk.org.secondfiddle.pep.projects.model.manager.ProjectTemplateManager;
 
 @SuppressWarnings("restriction")
@@ -55,7 +56,8 @@ public class ProjectTemplateWizard extends NewPluginTemplateWizard implements IN
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
 			throws CoreException {
-		String templateId = config.getDeclaringExtension().getUniqueIdentifier();
+		String extensionId = config.getDeclaringExtension().getUniqueIdentifier();
+		String templateId = ProjectTemplateExtensionLoader.toTemplateId(extensionId);
 		this.projectTemplate = templateManager.getProjectTemplate(templateId);
 		this.projectTemplateSection.setProjectTemplate(projectTemplate);
 	}
