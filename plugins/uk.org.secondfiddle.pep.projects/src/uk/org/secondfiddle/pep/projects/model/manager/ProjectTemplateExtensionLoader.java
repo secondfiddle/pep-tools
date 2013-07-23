@@ -1,5 +1,8 @@
 package uk.org.secondfiddle.pep.projects.model.manager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.internal.registry.ExtensionRegistry;
 import org.eclipse.core.internal.registry.spi.ConfigurationElementAttribute;
 import org.eclipse.core.internal.registry.spi.ConfigurationElementDescription;
@@ -11,6 +14,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchImages;
 import org.eclipse.ui.internal.registry.IWorkbenchRegistryConstants;
+import org.eclipse.ui.internal.wizards.NewWizardRegistry;
+import org.eclipse.ui.wizards.IWizardCategory;
 import org.osgi.framework.Bundle;
 
 import uk.org.secondfiddle.pep.projects.ProjectTemplateActivator;
@@ -25,32 +30,60 @@ public class ProjectTemplateExtensionLoader {
 
 	private final IContributor contributor;
 
-	private final ExtensionRegistry registry;
+	private final ExtensionRegistry extensionRegistry;
+
+	private final NewWizardRegistry wizardRegistry;
 
 	public ProjectTemplateExtensionLoader() {
 		Bundle bundle = Platform.getBundle(ProjectTemplateActivator.PLUGIN_ID);
 		this.contributor = ContributorFactoryOSGi.createContributor(bundle);
-		this.registry = (ExtensionRegistry) Platform.getExtensionRegistry();
+		this.extensionRegistry = (ExtensionRegistry) Platform.getExtensionRegistry();
+		this.wizardRegistry = NewWizardRegistry.getInstance();
 	}
 
 	public void addTemplateExtension(ProjectTemplate template) {
+		ensureGroupExists(template);
+
 		String id = template.getId();
 		String label = template.getName();
-		ConfigurationElementDescription description = createDescription(template);
-		Object token = registry.getTemporaryUserToken();
+		ConfigurationElementDescription description = createTemplateDescription(template);
+		addExtension(id, label, description);
 
-		registry.addExtension(id, contributor, false, label, EXTENSION_POINT_ID, description, token);
 		addImage(template.getSmallIcon(), template);
 		addImage(template.getLargeIcon(), template);
 	}
 
-	public void removeTemplateExtension(ProjectTemplate template) {
-		IExtension extension = registry.getExtension(template.getId());
-		Object token = registry.getTemporaryUserToken();
+	private void ensureGroupExists(ProjectTemplate template) {
+		if (template.getGroup() == null) {
+			return;
+		}
 
-		registry.removeExtension(extension, token);
+		IWizardCategory category = wizardRegistry.findCategory(template.getGroup());
+		if (category == null) {
+			String id = "project.template." + template.getGroup();
+			String label = template.getGroup();
+			ConfigurationElementDescription description = createGroupDescription(template);
+			addExtension(id, label, description);
+		}
+	}
+
+	public void removeTemplateExtension(ProjectTemplate template) {
+		String id = template.getId();
+		removeExtension(id);
+
 		removeImage(template.getSmallIcon(), template);
 		removeImage(template.getLargeIcon(), template);
+	}
+
+	private void addExtension(String id, String label, ConfigurationElementDescription description) {
+		Object token = extensionRegistry.getTemporaryUserToken();
+		extensionRegistry.addExtension(id, contributor, false, label, EXTENSION_POINT_ID, description, token);
+	}
+
+	private void removeExtension(String id) {
+		IExtension extension = extensionRegistry.getExtension(id);
+		Object token = extensionRegistry.getTemporaryUserToken();
+		extensionRegistry.removeExtension(extension, token);
 	}
 
 	private void addImage(ProjectTemplateIcon icon, ProjectTemplate template) {
@@ -66,15 +99,26 @@ public class ProjectTemplateExtensionLoader {
 		}
 	}
 
-	private ConfigurationElementDescription createDescription(ProjectTemplate template) {
-		ConfigurationElementAttribute[] atts = new ConfigurationElementAttribute[6];
-		atts[0] = new ConfigurationElementAttribute("category", "projecttemplate");
-		atts[1] = new ConfigurationElementAttribute("class", ProjectTemplateWizard.class.getName());
-		atts[2] = new ConfigurationElementAttribute("id", template.getId());
-		atts[3] = new ConfigurationElementAttribute("name", template.getName());
-		atts[4] = new ConfigurationElementAttribute("icon", template.getSmallIcon().getId());
-		atts[5] = new ConfigurationElementAttribute("project", "true");
-		return new ConfigurationElementDescription("wizard", atts, null, null);
+	private ConfigurationElementDescription createGroupDescription(ProjectTemplate template) {
+		ConfigurationElementAttribute[] atts = new ConfigurationElementAttribute[2];
+		atts[0] = new ConfigurationElementAttribute("id", template.getGroup());
+		atts[1] = new ConfigurationElementAttribute("name", template.getGroup());
+		return new ConfigurationElementDescription(IWorkbenchRegistryConstants.TAG_CATEGORY, atts, null, null);
+	}
+
+	private ConfigurationElementDescription createTemplateDescription(ProjectTemplate template) {
+		List<ConfigurationElementAttribute> atts = new ArrayList<ConfigurationElementAttribute>();
+		atts.add(new ConfigurationElementAttribute("class", ProjectTemplateWizard.class.getName()));
+		atts.add(new ConfigurationElementAttribute("id", template.getId()));
+		atts.add(new ConfigurationElementAttribute("name", template.getName()));
+		atts.add(new ConfigurationElementAttribute("icon", template.getSmallIcon().getId()));
+		atts.add(new ConfigurationElementAttribute("project", "true"));
+		if (template.getGroup() != null) {
+			atts.add(new ConfigurationElementAttribute("category", template.getGroup()));
+		}
+
+		ConfigurationElementAttribute[] attsArray = atts.toArray(new ConfigurationElementAttribute[atts.size()]);
+		return new ConfigurationElementDescription(IWorkbenchRegistryConstants.TAG_WIZARD, attsArray, null, null);
 	}
 
 }

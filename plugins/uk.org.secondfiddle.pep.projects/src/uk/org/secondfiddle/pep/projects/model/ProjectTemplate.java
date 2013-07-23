@@ -8,6 +8,8 @@ public interface ProjectTemplate {
 
 	String getName();
 
+	String getGroup();
+
 	String getExtends();
 
 	ProjectTemplateIcon getSmallIcon();

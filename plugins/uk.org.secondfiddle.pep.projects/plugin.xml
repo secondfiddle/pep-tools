@@ -17,12 +17,5 @@
             class="uk.org.secondfiddle.pep.projects.ProjectTemplateActivator$ForceActivation">
       </startup>
    </extension>
-   <extension
-         point="org.eclipse.ui.newWizards">
-      <category
-            id="projecttemplate"
-            name="Project Templates">
-      </category>
-   </extension>
 
 </plugin>

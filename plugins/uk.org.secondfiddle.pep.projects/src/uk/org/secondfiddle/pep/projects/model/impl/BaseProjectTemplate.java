@@ -25,6 +25,8 @@ public class BaseProjectTemplate extends AbstractProjectTemplate {
 
 	private static final String TEMPLATE_NAME = "TemplateName";
 
+	private static final String TEMPLATE_GROUP = "TemplateGroup";
+
 	private static final String TEMPLATE_ICON_SMALL = "TemplateIconSmall";
 
 	private static final String TEMPLATE_ICON_LARGE = "TemplateIconLarge";
@@ -53,6 +55,8 @@ public class BaseProjectTemplate extends AbstractProjectTemplate {
 
 	private final String name;
 
+	private final String group;
+
 	private final URL smallIcon;
 
 	private final URL largeIcon;
@@ -68,6 +72,7 @@ public class BaseProjectTemplate extends AbstractProjectTemplate {
 		this.projectName = templateFile.getProject().getName();
 		this.location = templateFile.getParent().getLocation().toString();
 		this.name = manifest.getMainAttributes().getValue(TEMPLATE_NAME);
+		this.group = manifest.getMainAttributes().getValue(TEMPLATE_GROUP);
 		this.smallIcon = getIconUrl(TEMPLATE_ICON_SMALL, templateFile, manifest);
 		this.largeIcon = getIconUrl(TEMPLATE_ICON_LARGE, templateFile, manifest);
 		this.templateExtends = manifest.getMainAttributes().getValue(TEMPLATE_EXTENDS);
@@ -129,6 +134,11 @@ public class BaseProjectTemplate extends AbstractProjectTemplate {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public String getGroup() {
+		return group;
 	}
 
 	@Override

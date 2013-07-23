@@ -39,6 +39,15 @@ public class DefaultProjectTemplate extends AbstractProjectTemplate {
 	}
 
 	@Override
+	public String getGroup() {
+		if (delegate.getGroup() == null && base() != null) {
+			return base().getGroup();
+		} else {
+			return delegate.getGroup();
+		}
+	}
+
+	@Override
 	public String getExtends() {
 		return delegate.getExtends();
 	}
