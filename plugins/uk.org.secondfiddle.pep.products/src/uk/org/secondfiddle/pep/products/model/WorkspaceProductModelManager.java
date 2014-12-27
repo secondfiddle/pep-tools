@@ -3,6 +3,7 @@ package uk.org.secondfiddle.pep.products.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -35,19 +36,18 @@ public class WorkspaceProductModelManager extends WorkspaceModelManager {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void createSingleModel(IProject project, IFile product, boolean notify) {
 		IProductModel model = new WorkspaceProductModel(product, true);
 		loadModel(model, false);
 
-		if (fModels == null) {
-			fModels = new HashMap<IProject, Collection<IProductModel>>();
+		if (getModelsMap() == null) {
+			setModelsMap(new HashMap<IProject, Collection<IProductModel>>());
 		}
 
-		Collection<IProductModel> models = (Collection<IProductModel>) fModels.get(project);
+		Collection<IProductModel> models = getModelsMap().get(project);
 		if (models == null) {
 			models = new ArrayList<IProductModel>();
-			fModels.put(project, models);
+			getModelsMap().put(project, models);
 		}
 
 		models.add(model);
@@ -58,27 +58,24 @@ public class WorkspaceProductModelManager extends WorkspaceModelManager {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	protected Object removeModel(IProject project) {
-		Object models = fModels != null ? fModels.remove(project) : null;
+		Collection<IProductModel> models = getModelsMap() != null ? getModelsMap().remove(project) : null;
 		if (models != null) {
-			for (IProductModel model : (Collection<IProductModel>) models) {
+			for (IProductModel model : models) {
 				addChange(model, IModelProviderEvent.MODELS_REMOVED);
 			}
 		}
 		return models;
 	}
 
-	@SuppressWarnings("unchecked")
 	private Object removeSingleModel(IProject project, Object model) {
-		Object models = fModels != null ? fModels.get(project) : null;
+		Collection<IProductModel> models = getModelsMap() != null ? getModelsMap().get(project) : null;
 		if (models != null) {
-			Collection<IProductModel> modelsCollection = (Collection<IProductModel>) models;
-			if (modelsCollection.remove(model)) {
+			if (models.remove(model)) {
 				addChange(model, IModelProviderEvent.MODELS_REMOVED);
 			}
-			if (modelsCollection.isEmpty()) {
-				fModels.remove(project);
+			if (models.isEmpty()) {
+				getModelsMap().remove(project);
 			}
 		}
 		return models;
@@ -128,16 +125,25 @@ public class WorkspaceProductModelManager extends WorkspaceModelManager {
 		super.removeListeners();
 	}
 
-	@SuppressWarnings("unchecked")
 	protected IProductModel[] getProductModels() {
 		initialize();
 
 		Collection<IProductModel> flattenedModels = new ArrayList<IProductModel>();
-		for (Collection<IProductModel> models : (Collection<Collection<IProductModel>>) fModels.values()) {
+		for (Collection<IProductModel> models : getModelsMap().values()) {
 			flattenedModels.addAll(models);
 		}
 
 		return (IProductModel[]) flattenedModels.toArray(new IProductModel[flattenedModels.size()]);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Map<IProject, Collection<IProductModel>> getModelsMap() {
+		return (Map) fModels;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void setModelsMap(Map<IProject, Collection<IProductModel>> modelsMap) {
+		fModels = (Map) modelsMap;
 	}
 
 }

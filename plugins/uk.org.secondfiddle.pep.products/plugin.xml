@@ -22,28 +22,45 @@
       </builder>
    </extension>
    <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            adaptable="true"
-            id="uk.org.secondfiddle.pep.products.ProductNatureAddActionDelegate"
-            nameFilter="*.product"
-            objectClass="org.eclipse.core.resources.IFile">
-         <action
-               class="uk.org.secondfiddle.pep.products.ui.ProductNatureAddActionDelegate"
-               enablesFor="1"
-               id="uk.org.secondfiddle.pep.products.ProductNatureAddActionDelegate"
-               label="Add Product Nature"
-               menubarPath="secondfiddle">
-            <enablement>
-               <not>
-                  <objectState
-                        name="projectNature"
-                        value="uk.org.secondfiddle.pep.products.ProductNature">
-                  </objectState>
-               </not>
-            </enablement>
-         </action>
-      </objectContribution>
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.popup.any">
+         <menu
+               id="uk.org.secondfiddle.pep"
+               label="Plug-in Tools">
+            <command
+                  commandId="uk.org.secondfiddle.pep.products.command"
+                  label="Add Product Nature"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <iterate>
+                     <and>
+                        <not>
+                           <test
+                                 property="org.eclipse.core.resources.projectNature"
+                                 value="uk.org.secondfiddle.pep.products.ProductNature">
+                           </test>
+                        </not>
+                        <test
+                              property="org.eclipse.core.resources.name"
+                              value="*.product">
+                        </test>
+                     </and>
+                  </iterate>
+               </visibleWhen>
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.org.secondfiddle.pep.products.ui.ProductNatureAddHandler"
+            id="uk.org.secondfiddle.pep.products.command"
+            name="Add Product Nature">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.startup">
