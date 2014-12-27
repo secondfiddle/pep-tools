@@ -4,7 +4,7 @@ Bundle-Name: PEP Tools: Product Support
 Bundle-SymbolicName: uk.org.secondfiddle.pep.products;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Second Fiddle
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.pde.core;bundle-version="3.8.0",
  org.eclipse.pde.ui;bundle-version="3.7.0",
  org.eclipse.core.resources,
