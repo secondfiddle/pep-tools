@@ -2,22 +2,22 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         id="uk.org.secondfiddle.pep.products.ProductNature"
+         id="uk.org.secondfiddle.pep.products.nature.ProductNature"
          name="Product Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="uk.org.secondfiddle.pep.products.ProductNature">
+               class="uk.org.secondfiddle.pep.products.nature.ProductNature">
          </run>
       </runtime>
    </extension>
    <extension
-         id="uk.org.secondfiddle.pep.products.ProductBuilder"
+         id="uk.org.secondfiddle.pep.products.nature.ProductBuilder"
          name="Product Builder"
          point="org.eclipse.core.resources.builders">
       <builder>
          <run
-               class="uk.org.secondfiddle.pep.products.ProductBuilder">
+               class="uk.org.secondfiddle.pep.products.nature.ProductBuilder">
          </run>
       </builder>
    </extension>
@@ -30,7 +30,7 @@
                id="uk.org.secondfiddle.pep"
                label="Plug-in Tools">
             <command
-                  commandId="uk.org.secondfiddle.pep.products.command"
+                  commandId="uk.org.secondfiddle.pep.products.nature.command"
                   label="Add Product Nature"
                   style="push">
                <visibleWhen
@@ -40,7 +40,7 @@
                         <not>
                            <test
                                  property="org.eclipse.core.resources.projectNature"
-                                 value="uk.org.secondfiddle.pep.products.ProductNature">
+                                 value="uk.org.secondfiddle.pep.products.nature.ProductNature">
                            </test>
                         </not>
                         <test
@@ -57,8 +57,8 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="uk.org.secondfiddle.pep.products.ui.ProductNatureAddHandler"
-            id="uk.org.secondfiddle.pep.products.command"
+            defaultHandler="uk.org.secondfiddle.pep.products.nature.ui.ProductNatureAddHandler"
+            id="uk.org.secondfiddle.pep.products.nature.command"
             name="Add Product Nature">
       </command>
    </extension>
@@ -71,12 +71,12 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="uk.org.secondfiddle.pep.products.ui.ProductEditorWithSource"
-            contributorClass="uk.org.secondfiddle.pep.products.ui.UnrestrictedProductEditorContributor"
+            class="uk.org.secondfiddle.pep.products.editor.ProductEditorWithSource"
+            contributorClass="uk.org.secondfiddle.pep.products.editor.UnrestrictedProductEditorContributor"
             default="true"
             extensions="product"
             icon="icons/product_xml_obj.gif"
-            id="uk.org.secondfiddle.pep.products.productEditorWithSource"
+            id="uk.org.secondfiddle.pep.products.editor.productEditorWithSource"
             name="Product Configuration Editor With Source">
       </editor>
    </extension>

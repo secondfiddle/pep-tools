@@ -4,8 +4,8 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.ui.IStartup;
 import org.osgi.framework.BundleContext;
 
-import uk.org.secondfiddle.pep.products.impl.ProductRebuilder;
 import uk.org.secondfiddle.pep.products.model.ProductModelManager;
+import uk.org.secondfiddle.pep.products.nature.impl.ProductRebuilder;
 
 public class ProductNatureActivator extends Plugin {
 

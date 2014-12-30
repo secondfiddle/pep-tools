@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products.impl;
+package uk.org.secondfiddle.pep.products.nature.impl;
 
 import java.util.Collection;
 

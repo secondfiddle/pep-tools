@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products;
+package uk.org.secondfiddle.pep.products.nature;
 
 import java.util.Collection;
 import java.util.Map;
@@ -14,8 +14,9 @@ import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.product.WorkspaceProductModel;
 import org.eclipse.ui.ide.IDE;
 
-import uk.org.secondfiddle.pep.products.impl.ProductSupport;
-import uk.org.secondfiddle.pep.products.ui.ProductEditorWithSource;
+import uk.org.secondfiddle.pep.products.ProductNatureActivator;
+import uk.org.secondfiddle.pep.products.editor.ProductEditorWithSource;
+import uk.org.secondfiddle.pep.products.nature.impl.ProductSupport;
 
 @SuppressWarnings("restriction")
 public class ProductBuilder extends IncrementalProjectBuilder {

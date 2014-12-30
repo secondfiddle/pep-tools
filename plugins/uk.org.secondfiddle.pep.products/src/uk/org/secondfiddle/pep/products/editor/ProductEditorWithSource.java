@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products.ui;
+package uk.org.secondfiddle.pep.products.editor;
 
 import java.io.File;
 
@@ -19,7 +19,7 @@ import org.eclipse.ui.ide.FileStoreEditorInput;
 @SuppressWarnings("restriction")
 public class ProductEditorWithSource extends ProductEditor {
 
-	public static String ID = "uk.org.secondfiddle.pep.products.productEditorWithSource";
+	public static String ID = "uk.org.secondfiddle.pep.products.editor.productEditorWithSource";
 
 	@Override
 	protected String getEditorID() {

@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products.ui;
+package uk.org.secondfiddle.pep.products.editor;
 
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;

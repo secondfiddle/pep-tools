@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products.ui;
+package uk.org.secondfiddle.pep.products.editor;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;

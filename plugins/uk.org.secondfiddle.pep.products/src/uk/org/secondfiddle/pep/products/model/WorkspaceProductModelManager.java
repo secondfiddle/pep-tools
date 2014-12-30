@@ -16,7 +16,7 @@ import org.eclipse.pde.internal.core.WorkspaceModelManager;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.product.WorkspaceProductModel;
 
-import uk.org.secondfiddle.pep.products.impl.ProductSupport;
+import uk.org.secondfiddle.pep.products.nature.impl.ProductSupport;
 
 /**
  * Part of this class is adapted from {@link WorkspaceFeatureModelManager}.

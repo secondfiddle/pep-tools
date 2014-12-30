@@ -67,7 +67,7 @@ import uk.org.secondfiddle.pep.features.support.PluginSupport;
 import uk.org.secondfiddle.pep.features.support.ProductSupport;
 import uk.org.secondfiddle.pep.features.support.RefactoringSupport;
 import uk.org.secondfiddle.pep.products.model.ProductModelManager;
-import uk.org.secondfiddle.pep.products.ui.ProductNatureAddAction;
+import uk.org.secondfiddle.pep.products.nature.ui.ProductNatureAddAction;
 
 @SuppressWarnings("restriction")
 public class FeatureExplorerView extends ViewPart implements ConfigurableViewer {

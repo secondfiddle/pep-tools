@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products.ui;
+package uk.org.secondfiddle.pep.products.nature.ui;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
 import org.eclipse.pde.internal.core.util.CoreUtility;
 
-import uk.org.secondfiddle.pep.products.ProductNature;
+import uk.org.secondfiddle.pep.products.nature.ProductNature;
 
 @SuppressWarnings("restriction")
 public class ProductNatureAddAction extends Action {

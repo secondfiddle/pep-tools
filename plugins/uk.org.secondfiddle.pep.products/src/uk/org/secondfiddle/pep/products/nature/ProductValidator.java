@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products;
+package uk.org.secondfiddle.pep.products.nature;
 
 import static java.util.Collections.singleton;
 
@@ -34,8 +34,8 @@ import org.eclipse.pde.internal.launching.launcher.LaunchValidationOperation;
 import org.eclipse.pde.internal.ui.PDEPlugin;
 import org.eclipse.pde.internal.ui.editor.product.ProductValidateAction;
 
-import uk.org.secondfiddle.pep.products.impl.DummyProductLaunchConfiguration;
-import uk.org.secondfiddle.pep.products.impl.ProductEclipsePluginValidationOperation;
+import uk.org.secondfiddle.pep.products.nature.impl.DummyProductLaunchConfiguration;
+import uk.org.secondfiddle.pep.products.nature.impl.ProductEclipsePluginValidationOperation;
 
 /**
  * Part of this class is adapted from {@link ProductValidateAction}.

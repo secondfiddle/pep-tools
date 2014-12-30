@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products;
+package uk.org.secondfiddle.pep.products.nature;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.pde.internal.core.natures.BaseProject;

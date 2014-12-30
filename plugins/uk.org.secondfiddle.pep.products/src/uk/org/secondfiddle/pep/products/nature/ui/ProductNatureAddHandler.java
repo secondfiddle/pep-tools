@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products.ui;
+package uk.org.secondfiddle.pep.products.nature.ui;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

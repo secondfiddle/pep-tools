@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products.ui;
+package uk.org.secondfiddle.pep.products.editor;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.pde.core.IModelChangedEvent;

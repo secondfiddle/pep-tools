@@ -22,8 +22,8 @@ import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
+import uk.org.secondfiddle.pep.products.editor.ProductEditorWithSource;
 import uk.org.secondfiddle.pep.products.model.ProductModelManager;
-import uk.org.secondfiddle.pep.products.ui.ProductEditorWithSource;
 
 @SuppressWarnings("restriction")
 public class ProductSupport {

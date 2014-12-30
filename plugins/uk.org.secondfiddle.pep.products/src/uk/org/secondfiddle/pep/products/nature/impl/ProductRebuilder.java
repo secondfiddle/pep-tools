@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.products.impl;
+package uk.org.secondfiddle.pep.products.nature.impl;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
