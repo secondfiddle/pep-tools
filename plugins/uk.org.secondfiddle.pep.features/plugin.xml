@@ -6,9 +6,9 @@
       <view
             allowMultiple="true"
             category="org.eclipse.pde.ui"
-            class="uk.org.secondfiddle.pep.features.FeatureExplorerView"
+            class="uk.org.secondfiddle.pep.features.explorer.FeatureExplorerView"
             icon="icons/feature_obj.gif"
-            id="uk.org.secondfiddle.pep.features.FeatureExplorerView"
+            id="uk.org.secondfiddle.pep.features.explorer.FeatureExplorerView"
             name="Feature Explorer"
             restorable="true">
       </view>

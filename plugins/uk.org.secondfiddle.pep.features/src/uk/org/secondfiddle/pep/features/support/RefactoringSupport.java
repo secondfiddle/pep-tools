@@ -1,16 +1,16 @@
 package uk.org.secondfiddle.pep.features.support;
 
 import static java.util.Collections.singleton;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.LABEL_DELETE_FEATURE;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.LABEL_DELETE_FEATURES;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.LABEL_REMOVE_IMPORT;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.LABEL_REMOVE_IMPORTS;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.MESSAGE_DELETE_FEATURES_OR_REFS;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.MESSAGE_DELETE_FEATURE_OR_REF;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURE;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_FEATURES;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_PRODUCT;
-import static uk.org.secondfiddle.pep.features.FeatureExplorerConstants.TITLE_DELETE_PRODUCTS;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.LABEL_DELETE_FEATURE;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.LABEL_DELETE_FEATURES;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.LABEL_REMOVE_IMPORT;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.LABEL_REMOVE_IMPORTS;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.MESSAGE_DELETE_FEATURES_OR_REFS;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.MESSAGE_DELETE_FEATURE_OR_REF;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.TITLE_DELETE_FEATURE;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.TITLE_DELETE_FEATURES;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.TITLE_DELETE_PRODUCT;
+import static uk.org.secondfiddle.pep.features.explorer.FeatureExplorerConstants.TITLE_DELETE_PRODUCTS;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -77,9 +77,9 @@ import org.eclipse.pde.internal.ui.util.ModelModification;
 import org.eclipse.pde.internal.ui.util.PDEModelUtility;
 import org.eclipse.swt.widgets.Shell;
 
-import uk.org.secondfiddle.pep.features.refactor.RenameFeatureWizard;
-import uk.org.secondfiddle.pep.features.refactor.RenamePluginWizard;
-import uk.org.secondfiddle.pep.features.refactor.RenameProductWizard;
+import uk.org.secondfiddle.pep.features.refactoring.RenameFeatureWizard;
+import uk.org.secondfiddle.pep.features.refactoring.RenamePluginWizard;
+import uk.org.secondfiddle.pep.features.refactoring.RenameProductWizard;
 
 @SuppressWarnings("restriction")
 public class RefactoringSupport {
