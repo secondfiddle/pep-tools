@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.plugins.pde.job;
+package uk.org.secondfiddle.pep.plugins.patch.classpath;
 
 import java.lang.reflect.Field;
 
@@ -17,7 +17,7 @@ import uk.org.secondfiddle.pep.plugins.PatchActivator;
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399995 for more details.
  */
 @SuppressWarnings("restriction")
-public class PluginDependenciesJobPatch implements Runnable {
+public class UpdateClasspathsJobPatch implements Runnable {
 
 	@Override
 	public void run() {

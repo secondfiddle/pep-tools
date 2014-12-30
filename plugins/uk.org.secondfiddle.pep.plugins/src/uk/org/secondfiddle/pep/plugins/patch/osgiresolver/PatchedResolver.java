@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.plugins.osgi.resolver;
+package uk.org.secondfiddle.pep.plugins.patch.osgiresolver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.plugins.osgi.resolver;
+package uk.org.secondfiddle.pep.plugins.patch.osgiresolver;
 
 import java.util.HashSet;
 

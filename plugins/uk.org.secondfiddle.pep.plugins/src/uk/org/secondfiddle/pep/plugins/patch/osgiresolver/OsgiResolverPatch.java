@@ -1,4 +1,4 @@
-package uk.org.secondfiddle.pep.plugins.osgi.resolver;
+package uk.org.secondfiddle.pep.plugins.patch.osgiresolver;
 
 import java.lang.reflect.Field;
 
@@ -9,7 +9,7 @@ import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.pde.internal.core.PluginModelManager;
 
 import uk.org.secondfiddle.pep.plugins.PatchActivator;
-import uk.org.secondfiddle.pep.plugins.pde.job.PluginDependenciesJobPatch;
+import uk.org.secondfiddle.pep.plugins.patch.classpath.UpdateClasspathsJobPatch;
 
 /**
  * Workaround for slow recalculation of bundle dependencies.
@@ -44,7 +44,7 @@ public class OsgiResolverPatch implements Runnable {
 
 	private void enableDebugLogging() {
 		try {
-			Job job = PluginDependenciesJobPatch.getUpdateClasspathsJob();
+			Job job = UpdateClasspathsJobPatch.getUpdateClasspathsJob();
 			Field projectsField = job.getClass().getDeclaredField("fProjects");
 			projectsField.setAccessible(true);
 			projectsField.set(job, new LoggingProjectList());
