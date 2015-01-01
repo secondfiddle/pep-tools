@@ -2,12 +2,12 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         id="uk.org.secondfiddle.pep.projects.nature.ProjectTemplateNature"
+         id="uk.org.secondfiddle.pep.projects.templates.nature.ProjectTemplateNature"
          name="Project Template Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="uk.org.secondfiddle.pep.projects.nature.ProjectTemplateNature">
+               class="uk.org.secondfiddle.pep.projects.templates.nature.ProjectTemplateNature">
          </run>
       </runtime>
    </extension>
