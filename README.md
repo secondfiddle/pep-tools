@@ -1,4 +1,4 @@
-# PEP Tools: PDE/Eclipse Productivity
+# ![PEP Tools logo](docs/images/pep-tools-icon.png?raw=true) PEP Tools: PDE/Eclipse Productivity
 
 The plugins in PEP Tools are intended to help Eclipse RCP developers get more out of their IDE. It raises the level of support for features and products to be equivalent to the built-in support for plugins, and includes time-saving features for plugin development.
 
