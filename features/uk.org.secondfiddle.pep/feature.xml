@@ -3,7 +3,8 @@
       id="uk.org.secondfiddle.pep"
       label="PEP Tools: PDE/Eclipse Productivity"
       version="1.0.0.qualifier"
-      provider-name="Second Fiddle">
+      provider-name="Second Fiddle"
+      plugin="uk.org.secondfiddle.pep.branding">
 
    <description>
       PEP Tools: PDE/Eclipse Productivity provides additional support for developing Eclipse RCP applications within the Eclipse IDE.
@@ -89,6 +90,16 @@ Everyone is permitted to copy and distribute copies of this Agreement, but in or
 
 This Agreement is governed by the laws of the State of New York and the intellectual property laws of the United States of America. No party to this Agreement will bring a legal action under this Agreement more than one year after the cause of action arose. Each party waives its rights to a jury trial in any resulting litigation.
    </license>
+
+   <url>
+      <update label="PEP Tools" url="http://www.secondfiddle.org.uk/pep-tools/update-site/"/>
+   </url>
+
+   <plugin
+         id="uk.org.secondfiddle.pep.branding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="uk.org.secondfiddle.pep.features"
