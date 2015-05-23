@@ -7,14 +7,12 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Dictionary;
 
-import org.eclipse.osgi.internal.module.ResolverBundle;
 import org.eclipse.osgi.service.resolver.BaseDescription;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.ExportPackageDescription;
 import org.eclipse.osgi.service.resolver.Resolver;
 import org.eclipse.osgi.service.resolver.State;
 
-@SuppressWarnings("restriction")
 class PatchedResolver implements Resolver {
 
 	private final UnresolvedBundleSet unresolvedBundleSet = new UnresolvedBundleSet();
@@ -44,7 +42,6 @@ class PatchedResolver implements Resolver {
 	 * In order to do this, initialize() is called here (if required) so that it
 	 * isn't called by ResolverImpl, then the field-value immediately replaced.
 	 */
-	@SuppressWarnings("unchecked")
 	private void preInitialize() {
 		try {
 			Field initializedField = realResolver.getClass().getDeclaredField("initialized");
@@ -58,8 +55,7 @@ class PatchedResolver implements Resolver {
 
 			Field unresolvedBundles = realResolver.getClass().getDeclaredField("unresolvedBundles");
 			unresolvedBundles.setAccessible(true);
-			Collection<ResolverBundle> realUnresolvedBundleSet = (Collection<ResolverBundle>) unresolvedBundles
-					.get(realResolver);
+			Collection<?> realUnresolvedBundleSet = (Collection<?>) unresolvedBundles.get(realResolver);
 
 			// Reset replacement unresolved bundle-set if necessary
 			if (realUnresolvedBundleSet != unresolvedBundleSet) {

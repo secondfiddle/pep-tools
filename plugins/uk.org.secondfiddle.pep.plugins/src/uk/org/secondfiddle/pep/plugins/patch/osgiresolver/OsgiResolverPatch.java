@@ -3,7 +3,6 @@ package uk.org.secondfiddle.pep.plugins.patch.osgiresolver;
 import java.lang.reflect.Field;
 
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.osgi.internal.resolver.StateImpl;
 import org.eclipse.osgi.service.resolver.Resolver;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.pde.internal.core.PluginModelManager;
@@ -32,7 +31,7 @@ public class OsgiResolverPatch implements Runnable {
 			State state = PluginModelManager.getInstance().getState().getState();
 			Resolver resolver = state.getResolver();
 
-			Field resolverField = StateImpl.class.getDeclaredField("resolver");
+			Field resolverField = state.getClass().getSuperclass().getDeclaredField("resolver");
 			resolverField.setAccessible(true);
 			resolverField.set(state, new PatchedResolver(resolver));
 		} catch (NoSuchFieldException e) {

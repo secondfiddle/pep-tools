@@ -86,7 +86,6 @@ public class ProductValidator {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void extendedValidation(IProduct product, Collection<String> errorMessages) {
 		Map<String, IPluginModelBase> pluginModels = new HashMap<String, IPluginModelBase>();
 

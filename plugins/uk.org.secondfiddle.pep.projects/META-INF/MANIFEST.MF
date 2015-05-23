@@ -5,13 +5,13 @@ Bundle-SymbolicName: uk.org.secondfiddle.pep.projects;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Second Fiddle
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
- org.eclipse.core.resources;bundle-version="3.8.0",
- org.eclipse.ui,
- org.eclipse.pde.ui;bundle-version="3.7.0",
- org.eclipse.ui.ide;bundle-version="3.8.0",
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0",
+ org.eclipse.core.resources;bundle-version="3.9.1",
+ org.eclipse.ui;bundle-version="3.106.1",
+ org.eclipse.pde.ui;bundle-version="3.8.101",
+ org.eclipse.ui.ide;bundle-version="3.10.2",
  org.apache.commons.io;bundle-version="2.0.1",
- org.eclipse.jdt.ui;bundle-version="3.8.0",
- org.apache.commons.lang;bundle-version="2.4.0"
+ org.eclipse.jdt.ui;bundle-version="3.10.2",
+ org.apache.commons.lang;bundle-version="2.6.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: uk.org.secondfiddle.pep.projects.ProjectTemplateActivator

@@ -17,7 +17,7 @@ import org.eclipse.debug.core.ILaunchDelegate;
 import org.eclipse.pde.internal.core.iproduct.IProduct;
 import org.eclipse.pde.launching.IPDELauncherConstants;
 
-@SuppressWarnings({ "rawtypes", "restriction" })
+@SuppressWarnings({ "restriction" })
 public class DummyProductLaunchConfiguration implements ILaunchConfiguration {
 
 	private final IProduct product;
@@ -43,6 +43,7 @@ public class DummyProductLaunchConfiguration implements ILaunchConfiguration {
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		throw new UnsupportedOperationException();
 	}
@@ -73,22 +74,23 @@ public class DummyProductLaunchConfiguration implements ILaunchConfiguration {
 	}
 
 	@Override
-	public List getAttribute(String attributeName, List defaultValue) throws CoreException {
+	public List<String> getAttribute(String attributeName, List<String> defaultValue) throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Set getAttribute(String attributeName, Set defaultValue) throws CoreException {
+	public Set<String> getAttribute(String attributeName, Set<String> defaultValue) throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Map getAttribute(String attributeName, Map defaultValue) throws CoreException {
+	public Map<String, String> getAttribute(String attributeName, Map<String, String> defaultValue)
+			throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Map getAttributes() throws CoreException {
+	public Map<String, Object> getAttributes() throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -123,12 +125,12 @@ public class DummyProductLaunchConfiguration implements ILaunchConfiguration {
 	}
 
 	@Override
-	public Set getModes() throws CoreException {
+	public Set<String> getModes() throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public ILaunchDelegate getPreferredDelegate(Set modes) throws CoreException {
+	public ILaunchDelegate getPreferredDelegate(Set<String> modes) throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 

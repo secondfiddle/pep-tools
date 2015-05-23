@@ -1,13 +1,11 @@
 package uk.org.secondfiddle.pep.plugins.patch.osgiresolver;
 
+import java.lang.reflect.Array;
 import java.util.HashSet;
-
-import org.eclipse.osgi.internal.module.ResolverBundle;
 
 import uk.org.secondfiddle.pep.plugins.PatchActivator;
 
-@SuppressWarnings("restriction")
-class UnresolvedBundleSet extends HashSet<ResolverBundle> {
+class UnresolvedBundleSet extends HashSet<Object> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +25,7 @@ class UnresolvedBundleSet extends HashSet<ResolverBundle> {
 				PatchActivator.logInfo("Claiming no unresolved bundles");
 			}
 
-			return (T[]) new ResolverBundle[0];
+			return (T[]) Array.newInstance(a.getClass().getComponentType(), 0);
 		} else {
 			return super.toArray(a);
 		}
