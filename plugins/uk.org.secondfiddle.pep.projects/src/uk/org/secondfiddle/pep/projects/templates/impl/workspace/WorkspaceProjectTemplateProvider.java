@@ -128,7 +128,7 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 			throw new RuntimeException(e);
 		}
 
-		int event = IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.POST_CHANGE;
+		int event = IResourceChangeEvent.PRE_DELETE | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.POST_CHANGE;
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this, event);
 	}
 
@@ -143,6 +143,8 @@ public class WorkspaceProjectTemplateProvider implements ProjectTemplateProvider
 		case IResourceChangeEvent.POST_CHANGE:
 			handleResourceDelta(event.getDelta());
 			break;
+		case IResourceChangeEvent.PRE_DELETE:
+			// fall through
 		case IResourceChangeEvent.PRE_CLOSE:
 			IProject project = event.getResource().getProject();
 			if (isInterestingProject(project)) {
