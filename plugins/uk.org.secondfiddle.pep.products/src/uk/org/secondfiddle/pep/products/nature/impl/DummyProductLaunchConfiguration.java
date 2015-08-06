@@ -73,19 +73,24 @@ public class DummyProductLaunchConfiguration implements ILaunchConfiguration {
 		throw new UnsupportedOperationException();
 	}
 
+	// Raw types used for compatibility with older Eclipse versions
+	@SuppressWarnings("rawtypes")
 	@Override
-	public List<String> getAttribute(String attributeName, List<String> defaultValue) throws CoreException {
+	public List<String> getAttribute(String attributeName, List defaultValue) throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
+	// Raw types used for compatibility with older Eclipse versions
+	@SuppressWarnings("rawtypes")
 	@Override
-	public Set<String> getAttribute(String attributeName, Set<String> defaultValue) throws CoreException {
+	public Set<String> getAttribute(String attributeName, Set defaultValue) throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
+	// Raw types used for compatibility with older Eclipse versions
+	@SuppressWarnings("rawtypes")
 	@Override
-	public Map<String, String> getAttribute(String attributeName, Map<String, String> defaultValue)
-			throws CoreException {
+	public Map<String, String> getAttribute(String attributeName, Map defaultValue) throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -129,8 +134,10 @@ public class DummyProductLaunchConfiguration implements ILaunchConfiguration {
 		throw new UnsupportedOperationException();
 	}
 
+	// Raw types used for compatibility with older Eclipse versions
+	@SuppressWarnings("rawtypes")
 	@Override
-	public ILaunchDelegate getPreferredDelegate(Set<String> modes) throws CoreException {
+	public ILaunchDelegate getPreferredDelegate(Set modes) throws CoreException {
 		throw new UnsupportedOperationException();
 	}
 
