@@ -43,7 +43,7 @@ public class DummyProductLaunchConfiguration implements ILaunchConfiguration {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object getAdapter(Class adapter) {
 		throw new UnsupportedOperationException();
 	}
