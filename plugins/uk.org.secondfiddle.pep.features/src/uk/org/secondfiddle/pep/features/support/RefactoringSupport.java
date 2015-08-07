@@ -71,6 +71,7 @@ import org.eclipse.pde.internal.core.ifeature.IFeaturePlugin;
 import org.eclipse.pde.internal.core.iproduct.IProduct;
 import org.eclipse.pde.internal.core.iproduct.IProductFeature;
 import org.eclipse.pde.internal.core.iproduct.IProductModel;
+import org.eclipse.pde.internal.core.iproduct.IProductPlugin;
 import org.eclipse.pde.internal.core.util.CoreUtility;
 import org.eclipse.pde.internal.core.util.IdUtil;
 import org.eclipse.pde.internal.ui.util.ModelModification;
@@ -792,6 +793,25 @@ public class RefactoringSupport {
 					((IEditableModel) workspaceModel).save();
 					break;
 				}
+			}
+		}
+
+		ProductModelManager productModelManager = ProductSupport.getManager();
+		for (IProductModel productModel : productModelManager.getModels()) {
+			productModel = ProductSupport.toEditableProductModel(productModel);
+			IProductPlugin matchingPlugin = null;
+			for (IProductPlugin plugin : productModel.getProduct().getPlugins()) {
+				if (plugin.getId().equals(oldName)) {
+					matchingPlugin = plugin;
+					break;
+				}
+			}
+			if (matchingPlugin != null) {
+				IProductPlugin[] matchingPluginAsArray = { matchingPlugin };
+				productModel.getProduct().removePlugins(matchingPluginAsArray);
+				matchingPlugin.setId(newName);
+				productModel.getProduct().addPlugins(matchingPluginAsArray);
+				((IEditableModel) productModel).save();
 			}
 		}
 	}
