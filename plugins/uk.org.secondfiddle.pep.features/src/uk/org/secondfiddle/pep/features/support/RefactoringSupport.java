@@ -80,6 +80,7 @@ import org.eclipse.swt.widgets.Shell;
 import uk.org.secondfiddle.pep.features.refactoring.RenameFeatureWizard;
 import uk.org.secondfiddle.pep.features.refactoring.RenamePluginWizard;
 import uk.org.secondfiddle.pep.features.refactoring.RenameProductWizard;
+import uk.org.secondfiddle.pep.products.model.ProductModelManager;
 
 @SuppressWarnings("restriction")
 public class RefactoringSupport {
@@ -805,6 +806,18 @@ public class RefactoringSupport {
 				if (includedFeature.getId().equals(oldName)) {
 					includedFeature.setId(newName);
 					((IEditableModel) workspaceModel).save();
+					break;
+				}
+			}
+		}
+
+		ProductModelManager productModelManager = ProductSupport.getManager();
+		for (IProductModel productModel : productModelManager.getModels()) {
+			productModel = ProductSupport.toEditableProductModel(productModel);
+			for (IProductFeature feature : productModel.getProduct().getFeatures()) {
+				if (feature.getId().equals(oldName)) {
+					feature.setId(newName);
+					((IEditableModel) productModel).save();
 					break;
 				}
 			}
