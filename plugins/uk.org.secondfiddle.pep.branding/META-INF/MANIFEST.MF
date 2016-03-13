@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: PEP Tools: PDE/Eclipse Productivity
 Bundle-SymbolicName: uk.org.secondfiddle.pep.branding
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: Second Fiddle
