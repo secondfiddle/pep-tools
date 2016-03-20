@@ -6,7 +6,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IStartup;
 import org.osgi.framework.BundleContext;
 
-import uk.org.secondfiddle.pep.plugins.patch.classpath.UpdateClasspathsJobPatch;
 import uk.org.secondfiddle.pep.plugins.patch.osgiresolver.OsgiResolverPatch;
 
 public class PatchActivator extends Plugin {
@@ -18,7 +17,6 @@ public class PatchActivator extends Plugin {
 		plugin = this;
 
 		safeRun(new OsgiResolverPatch());
-		safeRun(new UpdateClasspathsJobPatch());
 	}
 
 	public void stop(BundleContext context) throws Exception {
