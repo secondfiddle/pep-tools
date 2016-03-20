@@ -2,7 +2,7 @@
 <feature
       id="uk.org.secondfiddle.pep.productivity"
       label="PEP Tools: Eclipse Productivity"
-      version="1.2.0.qualifier"
+      version="1.3.0.qualifier"
       provider-name="Second Fiddle"
       plugin="uk.org.secondfiddle.pep.branding">
 
