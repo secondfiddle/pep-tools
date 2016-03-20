@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="uk.org.secondfiddle.pep"
-      label="PEP Tools: PDE/Eclipse Productivity"
+      id="uk.org.secondfiddle.pep.performance"
+      label="PEP Tools: PDE Performance"
       version="1.2.0.qualifier"
       provider-name="Second Fiddle"
       plugin="uk.org.secondfiddle.pep.branding">
 
    <description>
-      PEP Tools: PDE/Eclipse Productivity provides additional support for developing Eclipse RCP applications and other types of project within the Eclipse IDE.
+      PEP Tools: PDE Performance reduces the time taken to recalculate plugin dependencies when developing Eclipse RCP applications.
    </description>
 
    <copyright>
@@ -95,18 +95,6 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <update label="PEP Tools" url="http://www.secondfiddle.org.uk/pep-tools/update-site/"/>
    </url>
 
-   <includes
-         id="uk.org.secondfiddle.pep.pde"
-         version="0.0.0"
-         name="PEP Tools: PDE Enhancements"
-         optional="true"/>
-
-   <includes
-         id="uk.org.secondfiddle.pep.performance"
-         version="0.0.0"
-         name="PEP Tools: PDE Performance"
-         optional="true"/>
-
    <plugin
          id="uk.org.secondfiddle.pep.branding"
          download-size="0"
@@ -114,7 +102,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          version="0.0.0"/>
 
    <plugin
-         id="uk.org.secondfiddle.pep.projects"
+         id="uk.org.secondfiddle.pep.plugins"
          download-size="0"
          install-size="0"
          version="0.0.0"
