@@ -2,10 +2,18 @@
 
 The plugins in PEP Tools are intended to help Eclipse RCP developers get more out of their IDE. It raises the level of support for features and products to be equivalent to the built-in support for plugins, and includes time-saving features for plugin development.
 
-To install PEP Tools:
+To install PEP Tools either use the [Eclipse Marketplace](https://marketplace.eclipse.org/content/pep-tools-pdeeclipse-productivity):
+
+  1. Open the Marketplace client from the `Help > Eclipse Marketplace...` menu option.
+  2. Search for "PEP".
+  3. Click the `Install` button for the PEP Tools search-result.
+  4. Follow the wizard through to completion.
+
+Or install directly from the update site:
+
   1. Open the `Install` dialog from the `Help > Install New Software...` menu option.
   2. Paste http://www.secondfiddle.org.uk/pep-tools/update-site/ into the `Work with` text-box and press enter.
-  3. Check the box next the "Pep Tools" feature.
+  3. Check the box next the "PEP Tools" feature.
   4. Click `Next` and follow the wizard through to completion.
 
 
