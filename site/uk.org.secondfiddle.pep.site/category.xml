@@ -9,6 +9,9 @@
    <feature url="features/uk.org.secondfiddle.pep.performance_1.2.0.qualifier.jar" id="uk.org.secondfiddle.pep.performance" version="1.2.0.qualifier">
       <category name="PEP Tools"/>
    </feature>
+   <feature url="features/uk.org.secondfiddle.pep.productivity_1.2.0.qualifier.jar" id="uk.org.secondfiddle.pep.productivity" version="1.2.0.qualifier">
+      <category name="PEP Tools"/>
+   </feature>
    <category-def name="PEP Tools" label="PEP Tools: PDE/Eclipse Productivity">
       <description>
          PEP Tools: PDE/Eclipse Productivity provides additional support for developing Eclipse RCP applications and other types of project within the Eclipse IDE.
