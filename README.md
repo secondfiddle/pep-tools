@@ -12,7 +12,7 @@ To install PEP Tools either use the [Eclipse Marketplace](https://marketplace.ec
 Or install directly from the update site:
 
   1. Open the `Install` dialog from the `Help > Install New Software...` menu option.
-  2. Paste http://www.secondfiddle.org.uk/pep-tools/update-site/ into the `Work with` text-box and press enter.
+  2. Paste https://www.secondfiddle.org.uk/pep-tools/update-site/ into the `Work with` text-box and press enter.
   3. Check the box next the "PEP Tools" feature.
   4. Click `Next` and follow the wizard through to completion.
 
@@ -81,10 +81,10 @@ An experimental workaround for this issue is included in PEP Tools, and can mark
 
 When working on a project that involves regular creation of Eclipse projects there are often conventions that are followed to ensure that these projects are consistent and build properly. Luckily Eclipse has various extension points to help with this:
 
-  * [org.eclipse.pde.ui.templates](http://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/reference/extension-points/org_eclipse_pde_ui_templates.html "Eclipse documentation")
-  * [org.eclipse.pde.ui.pluginContent](http://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/reference/extension-points/org_eclipse_pde_ui_pluginContent.html "Eclipse documentation")
-  * [org.eclipse.pde.ui.newExtension](http://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/reference/extension-points/org_eclipse_pde_ui_newExtension.html "Eclipse documentation")
-  * [org.eclipse.ui.newWizards](http://help.eclipse.org/kepler/topic/org.eclipse.platform.doc.isv/guide/dialogs_wizards_newWizards.htm "Eclipse documentation")
+  * [org.eclipse.pde.ui.templates](https://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/reference/extension-points/org_eclipse_pde_ui_templates.html "Eclipse documentation")
+  * [org.eclipse.pde.ui.pluginContent](https://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/reference/extension-points/org_eclipse_pde_ui_pluginContent.html "Eclipse documentation")
+  * [org.eclipse.pde.ui.newExtension](https://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/reference/extension-points/org_eclipse_pde_ui_newExtension.html "Eclipse documentation")
+  * [org.eclipse.ui.newWizards](https://help.eclipse.org/kepler/topic/org.eclipse.platform.doc.isv/guide/dialogs_wizards_newWizards.htm "Eclipse documentation")
 
 While these can help, the first 3 options can't easily affect *all* elements of a new project, and the final one involves writing code and building/installing a plugin into the IDE.
 
